@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+@import '@kungal/ui-tokens';
+@import '@kungal/ui-vue/style.css';
+
+/*
+ * Tailwind only generates the utility classes it finds in scanned source. Both
+ * KunUI and the edit-ui components live outside this app, so point @source at
+ * them. The edit-ui path is the package SOURCE, not dist: Tailwind's directory
+ * scan honours .gitignore, and dist/ is ignored.
+ */
+@source '../../../node_modules/@kungal/ui-vue';
+@source '../../../node_modules/@kungal/ui-core';
+@source '../../../../../packages/vue/src';

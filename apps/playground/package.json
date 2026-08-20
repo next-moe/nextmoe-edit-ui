@@ -1,0 +1,29 @@
+{
+  "name": "@nextmoe/edit-ui-playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "nuxt:prepare": "nuxt prepare",
+    "clean": "rm -rf .nuxt .output"
+  },
+  "dependencies": {
+    "@kungal/ui-nuxt": "^2.24.0",
+    "@kungal/ui-tokens": "^2.24.0",
+    "@kungal/ui-vue": "^2.24.0",
+    "@nextmoe/edit-ui-core": "workspace:*",
+    "@nextmoe/edit-ui-nuxt": "workspace:*",
+    "@nextmoe/edit-ui-vue": "workspace:*",
+    "vue": "^3.5.35"
+  },
+  "devDependencies": {
+    "@iconify-json/lucide": "^1.2.0",
+    "@tailwindcss/vite": "^4.3.0",
+    "nuxt": "^4.4.7",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^5.7.0"
+  }
+}
