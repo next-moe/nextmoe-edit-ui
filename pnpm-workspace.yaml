@@ -1,0 +1,10 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
+# pnpm >= 10.20 reads this here, not from package.json's "pnpm" field.
+# vue-demi's postinstall rewrites its shim to the installed Vue major; skipping
+# it leaves @vueuse/integrations resolving against the Vue 2 shim.
+onlyBuiltDependencies:
+  - esbuild
+  - vue-demi

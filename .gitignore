@@ -1,0 +1,9 @@
+node_modules/
+dist
+.nuxt/
+.output/
+*.tsbuildinfo
+.turbo/
+.DS_Store
+*.log
+.vscode/
