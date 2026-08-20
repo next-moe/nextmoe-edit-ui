@@ -1,5 +1,6 @@
 import { diffWords } from 'diff'
 
+import { EDIT_CONTROLS } from './types'
 import type { EditControl, EditFieldConfig, EditSchemaField } from './types'
 
 export const stableStringify = (value: unknown): string => {
@@ -52,6 +53,11 @@ export const resolveControl = (
       return 'readonly'
   }
 }
+
+const KNOWN_CONTROLS = new Set<string>(EDIT_CONTROLS)
+
+export const isEditControl = (value: unknown): value is EditControl =>
+  typeof value === 'string' && KNOWN_CONTROLS.has(value)
 
 export const formatEditValue = (
   value: unknown,

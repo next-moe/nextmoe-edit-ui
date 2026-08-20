@@ -9,21 +9,28 @@ export interface EditSchemaField {
   would_automerge: boolean
 }
 
-export type EditControl =
-  | 'input'
-  | 'number'
-  | 'textarea'
-  | 'select'
-  | 'switch'
-  | 'date'
-  | 'string-list'
-  | 'number-list'
-  | 'object-list'
-  | 'entity-picker'
-  | 'entity-kind-picker'
-  | 'image'
-  | 'image-list'
-  | 'readonly'
+// The union is derived from the array, not written twice: `isEditControl` is
+// what decides whether a control renders its editor or the read-only fallback,
+// so a control present in the union but missing from the list would silently
+// degrade a working field.
+export const EDIT_CONTROLS = [
+  'input',
+  'number',
+  'textarea',
+  'select',
+  'switch',
+  'date',
+  'string-list',
+  'number-list',
+  'object-list',
+  'entity-picker',
+  'entity-kind-picker',
+  'image',
+  'image-list',
+  'readonly'
+] as const
+
+export type EditControl = (typeof EDIT_CONTROLS)[number]
 
 export interface EditSelectOption {
   value: string | number

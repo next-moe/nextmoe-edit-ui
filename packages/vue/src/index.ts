@@ -36,6 +36,7 @@ export type EditUiComponentName = (typeof EDIT_UI_COMPONENT_NAMES)[number]
 
 export type { EditFieldConfig, EditFieldConfigMap } from './types'
 
+export { EDIT_CONTROLS } from '@nextmoe/edit-ui-core'
 export {
   cloneEditValue,
   diffItems,
@@ -45,6 +46,7 @@ export {
   elideTextDiff,
   formatEditItem,
   formatEditValue,
+  isEditControl,
   isTextDiffElidable,
   proposalStatusBadge,
   resolveControl,

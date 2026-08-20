@@ -15,6 +15,7 @@ import {
   cloneEditValue,
   editValueEqual,
   formatEditValue,
+  isEditControl,
   resolveControl
 } from '@nextmoe/edit-ui-core'
 import EntityKindPicker from './EntityKindPicker.vue'
@@ -40,6 +41,12 @@ const emit = defineEmits<{
 
 const control = computed(() => resolveControl(props.field, props.config))
 const label = computed(() => props.config?.label ?? props.field.key)
+
+// Forward compatibility: the edit engine may start sending a control the
+// installed package predates. Render it read-only rather than falling through
+// to the text input (which would silently invite an edit the site cannot
+// serialise) — and never throw.
+const isKnownControl = computed(() => isEditControl(control.value))
 
 const readonlyReason = computed(() => {
   if (props.field.locked) {
@@ -261,6 +268,12 @@ const readonlyImageURLs = computed(() => {
         />
       </div>
       <p v-else class="text-default-500 text-sm break-all whitespace-pre-wrap">
+        {{ formatEditValue(modelValue, config) }}
+      </p>
+    </template>
+
+    <template v-else-if="!isKnownControl">
+      <p class="text-default-500 text-sm break-all whitespace-pre-wrap">
         {{ formatEditValue(modelValue, config) }}
       </p>
     </template>

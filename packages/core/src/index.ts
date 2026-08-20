@@ -1,3 +1,4 @@
+export { EDIT_CONTROLS } from './types'
 export type {
   EditAmendment,
   EditContextItem,
@@ -23,6 +24,7 @@ export {
   elideTextDiff,
   formatEditItem,
   formatEditValue,
+  isEditControl,
   isTextDiffElidable,
   proposalStatusBadge,
   resolveControl,
