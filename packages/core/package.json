@@ -1,0 +1,57 @@
+{
+  "name": "@nextmoe/edit-ui-core",
+  "version": "0.1.0",
+  "description": "NextMoe edit-ui framework-free core — the wire/schema types of the schema-driven edit surface plus the pure diff, formatting and badge helpers. No Vue, no DOM framework.",
+  "type": "module",
+  "keywords": [
+    "nextmoe",
+    "edit-ui",
+    "schema",
+    "diff",
+    "wiki",
+    "typescript"
+  ],
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sssmoe/nextmoe-edit-ui.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/sssmoe/nextmoe-edit-ui#readme",
+  "bugs": "https://github.com/sssmoe/nextmoe-edit-ui/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "files": [
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "diff": "^9.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.7.0",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.7"
+  }
+}
