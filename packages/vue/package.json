@@ -1,0 +1,74 @@
+{
+  "name": "@nextmoe/edit-ui-vue",
+  "version": "0.1.0",
+  "description": "NextMoe edit-ui Vue 3 layer — the schema-driven edit form, the per-field controls, the diff/review/timeline views. Composes @kungal/ui-vue; ships zero CSS of its own.",
+  "type": "module",
+  "keywords": [
+    "nextmoe",
+    "edit-ui",
+    "vue",
+    "vue3",
+    "schema-form",
+    "diff",
+    "wiki"
+  ],
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sssmoe/nextmoe-edit-ui.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/sssmoe/nextmoe-edit-ui#readme",
+  "bugs": "https://github.com/sssmoe/nextmoe-edit-ui/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": [
+    "*.css",
+    "*.vue"
+  ],
+  "files": [
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "dev": "vite build --watch",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@nextmoe/edit-ui-core": "workspace:*",
+    "@vueuse/core": "^14.3.0",
+    "@vueuse/integrations": "^14.3.0",
+    "sortablejs": "^1.15.7"
+  },
+  "peerDependencies": {
+    "@kungal/ui-vue": "^2",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@kungal/ui-vue": "^2.24.0",
+    "@types/node": "^22.10.0",
+    "@types/sortablejs": "^1.15.9",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.4.10",
+    "happy-dom": "^20.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.7",
+    "vue": "^3.5.35",
+    "vue-tsc": "^3.3.3"
+  }
+}
