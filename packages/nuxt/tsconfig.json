@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // This package ships raw TS (Nuxt loads it through jiti) and emits no
+    // .d.ts. Leaving the base's `declaration` on makes tsc demand a portable
+    // name for defineNuxtModule's return type — TS2742 against a pnpm path.
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["src"]
+}

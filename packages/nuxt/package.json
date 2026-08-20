@@ -1,0 +1,52 @@
+{
+  "name": "@nextmoe/edit-ui-nuxt",
+  "version": "0.1.0",
+  "description": "NextMoe edit-ui Nuxt module — auto-imports the @nextmoe/edit-ui-vue components under a configurable prefix (default `Edit`), so a Nuxt app uses <EditSchemaForm> with no import.",
+  "type": "module",
+  "keywords": [
+    "nextmoe",
+    "edit-ui",
+    "nuxt",
+    "nuxt-module",
+    "vue",
+    "schema-form"
+  ],
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sssmoe/nextmoe-edit-ui.git",
+    "directory": "packages/nuxt"
+  },
+  "homepage": "https://github.com/sssmoe/nextmoe-edit-ui#readme",
+  "bugs": "https://github.com/sssmoe/nextmoe-edit-ui/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./src/module.ts",
+  "types": "./src/module.ts",
+  "exports": {
+    ".": "./src/module.ts"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "src"
+  ],
+  "scripts": {
+    "build": "echo \"@nextmoe/edit-ui-nuxt ships raw TS loaded by Nuxt's jiti, no build step\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .nuxt"
+  },
+  "dependencies": {
+    "@nextmoe/edit-ui-core": "workspace:*",
+    "@nextmoe/edit-ui-vue": "workspace:*",
+    "@nuxt/kit": "^4.4.7"
+  },
+  "peerDependencies": {
+    "@kungal/ui-vue": "^2",
+    "nuxt": "^4.0.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
