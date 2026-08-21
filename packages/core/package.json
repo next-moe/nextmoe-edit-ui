@@ -1,6 +1,6 @@
 {
   "name": "@nextmoe/edit-ui-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "NextMoe edit-ui framework-free core — the wire/schema types of the schema-driven edit surface plus the pure diff, formatting and badge helpers. No Vue, no DOM framework.",
   "type": "module",
   "keywords": [

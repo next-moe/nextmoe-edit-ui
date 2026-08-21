@@ -1,6 +1,6 @@
 {
   "name": "@nextmoe/edit-ui-nuxt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "NextMoe edit-ui Nuxt module — auto-imports the @nextmoe/edit-ui-vue components under a configurable prefix (default `Edit`), so a Nuxt app uses <EditSchemaForm> with no import.",
   "type": "module",
   "keywords": [

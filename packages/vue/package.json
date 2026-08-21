@@ -1,6 +1,6 @@
 {
   "name": "@nextmoe/edit-ui-vue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "NextMoe edit-ui Vue 3 layer — the schema-driven edit form, the per-field controls, the diff/review/timeline views. Composes @kungal/ui-vue; ships zero CSS of its own.",
   "type": "module",
   "keywords": [
