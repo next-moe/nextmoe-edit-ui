@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Only one release run at a time; a newer push supersedes an in-flight one.
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write # commit the version bump back to main + push git tags + create GitHub Releases
+  id-token: write # OIDC token for npm trusted publishing (no NPM_TOKEN needed)
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # npm >= 11.5.1 is required for OIDC trusted publishing + auto-provenance.
+      - run: npm install -g npm@latest
+
+      # No "Version Packages" PR: when a push to main carries changesets, apply
+      # them, commit the bump straight back to main, then publish to npm. When a
+      # push carries no changesets, changeset version is a no-op and we bail out
+      # early — so non-release commits cost one quick, cheap run.
+      - name: Version and publish
+        id: release
+        run: |
+          set -euo pipefail
+
+          pnpm ci:version  # changeset version: bump package.json + CHANGELOG, drop .changeset/*.md
+
+          if git diff --quiet; then
+            echo "No changesets present — nothing to release."
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "ci: release packages [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"   # commit the bump back to main
+
+          pnpm ci:publish      # build packages + changeset publish (OIDC + provenance)
+          git push origin --tags
+
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p "require('./packages/vue/package.json').version")" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No NPM_TOKEN: authentication happens via OIDC (id-token: write).
+          # Provenance is emitted automatically under trusted publishing.
+
+      # Publish one GitHub Release per version (the 3 packages move in lockstep,
+      # so one Release on the edit-ui-vue tag covers them). Notes = the newest
+      # CHANGELOG block — same content as the changesets, zero extra hand-writing.
+      - name: Create GitHub Release
+        if: steps.release.outputs.released == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.release.outputs.version }}"
+          NOTES=$(awk 'f && /^## /{exit} /^## /{f=1; next} f' packages/vue/CHANGELOG.md)
+          gh release create "@nextmoe/edit-ui-vue@${VERSION}" \
+            --title "v${VERSION}" \
+            --notes "${NOTES:-Release v${VERSION}}" \
+            || echo "Release for v${VERSION} may already exist; skipping."
