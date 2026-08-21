@@ -14,11 +14,11 @@
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sssmoe/nextmoe-edit-ui.git",
+    "url": "git+https://github.com/next-moe/nextmoe-edit-ui.git",
     "directory": "packages/core"
   },
-  "homepage": "https://github.com/sssmoe/nextmoe-edit-ui#readme",
-  "bugs": "https://github.com/sssmoe/nextmoe-edit-ui/issues",
+  "homepage": "https://github.com/next-moe/nextmoe-edit-ui#readme",
+  "bugs": "https://github.com/next-moe/nextmoe-edit-ui/issues",
   "publishConfig": {
     "access": "public"
   },
