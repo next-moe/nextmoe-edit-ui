@@ -19,10 +19,7 @@ const onDiff = (from: number, to: number) => {
       <h3 class="text-default-700 text-sm font-medium">
         ReviewQueue + ProposalCard
       </h3>
-      <p class="text-default-400 text-xs">
-        Proposals by status, with the patched field labels resolved through the
-        <code>labelFor</code> function the site supplies.
-      </p>
+      <p class="text-default-400 text-xs leading-relaxed">按状态筛选的提案列表；被改动字段的标签，是通过站点提供的 <code>labelFor</code> 函数解析出来的。</p>
       <KunCard :is-transparent="false">
         <EditReviewQueue
           v-model:status="status"
@@ -35,13 +32,7 @@ const onDiff = (from: number, to: number) => {
 
     <div class="space-y-2">
       <h3 class="text-default-700 text-sm font-medium">RevisionTimeline</h3>
-      <p class="text-default-400 text-xs">
-        Pick any two revisions and it emits <code>diff(fromSeq, toSeq)</code> —
-        fetching that diff is the site's job.
-        <span v-if="diffRequest" class="text-primary">
-          Last request: {{ diffRequest }}
-        </span>
-      </p>
+      <p class="text-default-400 text-xs leading-relaxed">任选两个版本，它会抛出 <code>diff(fromSeq, toSeq)</code> —— 真正去取这份差异是站点的事。<span v-if="diffRequest" class="text-primary">最近一次请求：{{ diffRequest }}</span></p>
       <KunCard :is-transparent="false">
         <EditRevisionTimeline
           :items="revisions"

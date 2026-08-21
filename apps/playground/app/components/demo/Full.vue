@@ -7,8 +7,8 @@ const readOnly = ref(false)
 const patch = ref<Record<string, unknown>>({})
 
 const layoutItems = [
-  { value: 'stack', textValue: 'stack' },
-  { value: 'tabs', textValue: 'tabs' }
+  { value: 'stack', textValue: '纵向堆叠' },
+  { value: 'tabs', textValue: '分组标签页' }
 ]
 </script>
 
@@ -16,7 +16,7 @@ const layoutItems = [
   <div class="space-y-4">
     <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
       <KunTab v-model="layout" :items="layoutItems" variant="pills" size="sm" />
-      <KunSwitch v-model="readOnly" size="sm" label="disabled (review mode)" />
+      <KunSwitch v-model="readOnly" size="sm" label="只读（审阅模式）" />
     </div>
 
     <!--
@@ -46,10 +46,7 @@ const layoutItems = [
     </ClientOnly>
 
     <div class="border-default-200 bg-content1 rounded-lg border p-3">
-      <p class="text-default-500 mb-1 text-xs">
-        <code>update:patch</code> — only the fields that actually differ from
-        the server values, deep-compared. Edit anything above to see it appear.
-      </p>
+      <p class="text-default-500 mb-1 text-xs"><code>update:patch</code> —— 只包含与服务端值深比较后确实不同的字段。在上面随便改点什么，它就会出现在这里。</p>
       <pre
         class="text-default-700 max-h-64 overflow-auto font-mono text-xs"
       >{{ JSON.stringify(patch, null, 2) }}</pre>

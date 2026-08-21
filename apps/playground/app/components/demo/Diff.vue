@@ -4,13 +4,13 @@ import { resolveImage, values } from '~/fixtures'
 const hints = [
   {
     hint: 'inline',
-    note: 'Word-level text diff (Intl.Segmenter, so CJK splits on words).'
+    note: '按词粒度的文本差异（走 Intl.Segmenter，中文按词而非按字切分）。'
   },
-  { hint: 'lines', note: 'Same diff, whitespace preserved, long runs elided.' },
-  { hint: 'items', note: 'List membership: added / removed / kept.' },
+  { hint: 'lines', note: '同样的差异，保留空白，长段未改动内容自动折叠。' },
+  { hint: 'items', note: '列表成员：新增 / 移除 / 保留。' },
   {
     hint: 'image',
-    note: 'Only the pictures that changed — never the whole gallery.'
+    note: '只画变化的那几张图片，绝不铺开整个图库。'
   }
 ]
 </script>

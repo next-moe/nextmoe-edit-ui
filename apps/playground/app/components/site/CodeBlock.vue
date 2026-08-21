@@ -10,7 +10,8 @@ withDefaults(defineProps<{ code: string; label?: string }>(), { label: 'ts' })
       <span class="text-default-500 font-mono text-xs">{{ label }}</span>
       <KunCopy
         :text="code"
-        name="copy"
+        name="复制"
+        copied-text="已复制"
         size="sm"
         variant="light"
         color="default"

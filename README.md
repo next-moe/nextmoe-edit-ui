@@ -16,9 +16,9 @@ and [KunEditor](https://github.com/kungal/kun-editor) (`@kungal/editor-*`). It
 | `@nextmoe/edit-ui-vue`   | The Vue 3 components. Peer deps: `vue ^3.5`, `@kungal/ui-vue ^2`.                              |
 | `@nextmoe/edit-ui-nuxt`  | A Nuxt module that auto-imports the components under a configurable prefix (default `Edit`).   |
 
-`apps/playground` is that site: a private Nuxt app that renders every control and
-view off a fixture schema — the visual check while developing, and the public
-demo once deployed.
+`apps/playground` is that site: a private Nuxt app — a landing page plus a
+zh-CN docs section — that renders every control and view off a fixture schema.
+The visual check while developing, and the public demo once deployed.
 
 ## Two ways to consume it
 
@@ -72,7 +72,7 @@ Tailwind `@source` scan:
 
 Paths are relative to the CSS file, and `dist` is the only directory the package
 publishes. Miss the line and the components render with no error and no styling —
-[the guide](https://edit-ui.nextmoe.dev/guide) says more.
+[the guide](https://edit-ui.nextmoe.dev/guide/styling) says more.
 
 No gradient backgrounds are used anywhere, and none may be added.
 

@@ -6,7 +6,8 @@ import tailwindcss from '@tailwindcss/vite'
 // https://edit-ui.nextmoe.dev. It consumes the packages exactly the way a real
 // site does — KunUI chrome from the @kungal/ui-nuxt layer, the edit components
 // through this repo's own Nuxt module — so every deploy exercises the
-// auto-import path the guide documents.
+// auto-import path the guide documents. The site is written in zh-CN: the
+// downstream consumers are Chinese-language sites.
 
 const readVersion = (): string => {
   const url = new URL('../../packages/vue/package.json', import.meta.url)
@@ -32,6 +33,14 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   devServer: { port: 6898 },
+
+  // The guide used to be one page at /guide; it is a section now. Keep both
+  // section roots addressable — the packages' READMEs and npm pages link to
+  // /guide, and that link is already out in the world.
+  routeRules: {
+    '/guide': { redirect: { to: '/guide/install', statusCode: 301 } },
+    '/demo': { redirect: { to: '/demo/form', statusCode: 301 } }
+  },
 
   runtimeConfig: {
     public: {
@@ -65,13 +74,13 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      htmlAttrs: { lang: 'en' },
+      htmlAttrs: { lang: 'zh-CN' },
       title: '@nextmoe/edit-ui',
       meta: [
         {
           name: 'description',
           content:
-            'Schema-driven edit components for Vue and Nuxt: one form rendered from a server-sent field schema, plus the diff, proposal and revision views that go with it.'
+            'Vue 与 Nuxt 的 schema 驱动编辑组件：服务端下发一份字段 schema，前端据此渲染出整套编辑表单，以及配套的差异对比、提案审核与修订历史视图。'
         }
       ],
       link: [{ rel: 'icon', type: 'image/svg+xml', href: FAVICON }],

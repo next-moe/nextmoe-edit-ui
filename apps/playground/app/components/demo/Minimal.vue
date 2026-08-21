@@ -10,12 +10,12 @@ const fields = [
 ]
 
 const config: EditFieldConfigMap = {
-  title: { label: 'Title', control: 'input' },
-  intro: { label: 'Intro', control: 'textarea' },
+  title: { label: '标题', control: 'input' },
+  intro: { label: '简介', control: 'textarea' },
   aliases: {
-    label: 'Aliases',
+    label: '别名',
     control: 'string-list',
-    placeholder: 'type and press Enter'
+    placeholder: '输入后回车添加'
   }
 }
 
@@ -29,12 +29,12 @@ const patch = ref<Record<string, unknown>>({})
 
 const scriptSample = `import type { EditFieldConfigMap } from '@nextmoe/edit-ui-vue'
 
-// \`fields\` and \`values\` come from your API. \`config\` is the presentation
-// layer only the site knows about — labels, controls, placeholders.
+// fields 与 values 来自你的接口。config 是只有站点才知道的展示层：
+// 标签、控件、占位符。
 const config: EditFieldConfigMap = {
-  title: { label: 'Title', control: 'input' },
-  intro: { label: 'Intro', control: 'textarea' },
-  aliases: { label: 'Aliases', control: 'string-list' }
+  title: { label: '标题', control: 'input' },
+  intro: { label: '简介', control: 'textarea' },
+  aliases: { label: '别名', control: 'string-list' }
 }`
 
 const templateSample = `<EditSchemaForm
@@ -57,7 +57,7 @@ const templateSample = `<EditSchemaForm
           @update:patch="(value) => (patch = value)"
         />
         <p class="text-default-400 text-xs">
-          {{ Object.keys(patch).length }} field(s) changed
+          已改动 {{ Object.keys(patch).length }} 个字段
         </p>
       </KunCard>
       <template #fallback>
