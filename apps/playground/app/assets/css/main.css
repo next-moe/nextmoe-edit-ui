@@ -3,10 +3,13 @@
 @import '@kungal/ui-vue/style.css';
 
 /*
- * Tailwind only generates the utility classes it finds in scanned source. Both
- * KunUI and the edit-ui components live outside this app, so point @source at
- * them. The edit-ui path is the package SOURCE, not dist: Tailwind's directory
- * scan honours .gitignore, and dist/ is ignored.
+ * Tailwind only generates the utility classes it finds in scanned source, and
+ * both KunUI and the edit-ui components live outside this app — hence the
+ * @source lines. This app points at the edit-ui package SOURCE because it runs
+ * against the workspace, where `nuxt dev` starts with no dist built; a site
+ * installing from npm scans `node_modules/@nextmoe/edit-ui-vue/dist` instead
+ * (that is the path /guide documents, and it is scanned even though both
+ * node_modules and dist are git-ignored).
  */
 @source '../../../node_modules/@kungal/ui-vue';
 @source '../../../node_modules/@kungal/ui-core';

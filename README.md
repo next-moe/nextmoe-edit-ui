@@ -8,14 +8,17 @@ Third family alongside [KunUI](https://github.com/kungal/kun-ui) (`@kungal/ui-*`
 and [KunEditor](https://github.com/kungal/kun-editor) (`@kungal/editor-*`). It
 **composes** KunUI — it does not fork, wrap or re-style it.
 
+**Live demo + integration guide: [edit-ui.nextmoe.dev](https://edit-ui.nextmoe.dev)**
+
 | Package                  | What it is                                                                                    |
 | ------------------------ | --------------------------------------------------------------------------------------------- |
 | `@nextmoe/edit-ui-core`  | Framework-free TypeScript: the wire/schema types + the pure diff, formatting and badge helpers. No Vue anywhere in its dependency closure. |
 | `@nextmoe/edit-ui-vue`   | The Vue 3 components. Peer deps: `vue ^3.5`, `@kungal/ui-vue ^2`.                              |
 | `@nextmoe/edit-ui-nuxt`  | A Nuxt module that auto-imports the components under a configurable prefix (default `Edit`).   |
 
-`apps/playground` is a private Nuxt app that renders every control and view off a
-fixture schema — the visual check while developing.
+`apps/playground` is that site: a private Nuxt app that renders every control and
+view off a fixture schema — the visual check while developing, and the public
+demo once deployed.
 
 ## Two ways to consume it
 
@@ -64,8 +67,12 @@ Tailwind `@source` scan:
 @import '@kungal/ui-tokens';
 @import '@kungal/ui-vue/style.css';
 @source '../../node_modules/@kungal/ui-vue';
-@source '../../node_modules/@nextmoe/edit-ui-vue';
+@source '../../node_modules/@nextmoe/edit-ui-vue/dist';
 ```
+
+Paths are relative to the CSS file, and `dist` is the only directory the package
+publishes. Miss the line and the components render with no error and no styling —
+[the guide](https://edit-ui.nextmoe.dev/guide) says more.
 
 No gradient backgrounds are used anywhere, and none may be added.
 
@@ -109,6 +116,14 @@ pnpm --filter @nextmoe/edit-ui-playground dev   # http://localhost:6898
 Releases go through [changesets](https://github.com/changesets/changesets):
 `pnpm changeset`, then `pnpm ci:version` / `pnpm ci:publish`. The three published
 packages are versioned in lockstep.
+
+## Deploying the site
+
+`apps/playground` is also the public site. `.github/workflows/docs-image.yml`
+builds `docker/docs.Dockerfile` on every push to `main` that touches the app or
+the packages and pushes `ghcr.io/next-moe/nextmoe-edit-ui-docs:latest`;
+`docker-compose.prod.yml` is what Dokploy runs (internal port `6760`, routed to
+`edit-ui.nextmoe.dev` by its Traefik). Production never builds.
 
 ## Provenance
 

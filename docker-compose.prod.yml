@@ -1,0 +1,20 @@
+# Production compose for the edit-ui demo + docs site, consumed by Dokploy.
+# CI (.github/workflows/docs-image.yml) builds + pushes the image to GHCR;
+# Dokploy pulls it (no build on the production server) and routes
+# edit-ui.nextmoe.dev to it via its built-in Traefik. Map the domain in the
+# app's Domains tab:
+#   edit-ui.nextmoe.dev  ·  path /  ·  service docs  ·  container port 6760
+name: nextmoe-edit-ui-docs
+services:
+  docs:
+    image: ghcr.io/next-moe/nextmoe-edit-ui-docs:latest
+    # Always re-pull :latest on (re)deploy. Without this, `docker compose up`
+    # defaults to pull_policy: missing — so a Dokploy redeploy reuses the cached
+    # image and the new build never goes live until the tag is force-pulled.
+    pull_policy: always
+    expose: ['6760'] # internal only; Traefik reverse-proxies it
+    restart: unless-stopped
+networks:
+  default:
+    name: dokploy-network
+    external: true

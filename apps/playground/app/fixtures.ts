@@ -47,7 +47,7 @@ export const uploadImage = async (file: File): Promise<unknown> => ({
   sort_order: 0
 })
 
-const field = (
+export const field = (
   key: string,
   kind: string,
   diff_hint = 'inline',
