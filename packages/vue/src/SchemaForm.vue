@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { useMediaQuery } from '@vueuse/core'
 import { KunBadge, KunTab } from '@kungal/ui-vue'
 import { cloneEditValue, editValueEqual } from '@nextmoe/edit-ui-core'
 import SchemaField from './SchemaField.vue'
@@ -101,12 +100,22 @@ const sections = computed(() => {
   return out
 })
 
-const isDesktop = useMediaQuery('(min-width: 768px)')
-const tabOrientation = computed(() =>
-  isDesktop.value ? 'vertical' : 'horizontal'
-)
-
 const tabKey = (name: string) => name || UNGROUPED
+
+// Don't pick orientation from useMediaQuery: SSR has no viewport, and
+// ssrWidth: 768 just inverts the mismatch on phones. CSS-toggle two copies.
+const groupNavs = [
+  {
+    name: 'schema-form-groups-h',
+    orientation: 'horizontal' as const,
+    className: 'md:hidden'
+  },
+  {
+    name: 'schema-form-groups-v',
+    orientation: 'vertical' as const,
+    className: 'hidden shrink-0 md:block md:w-44'
+  }
+]
 
 const dirtyBySection = computed<Record<string, number>>(() => {
   const counts: Record<string, number> = {}
@@ -173,14 +182,16 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
     class="flex flex-col gap-4 md:flex-row md:gap-6"
   >
     <KunTab
-      :model-value="active"
+      v-for="nav in groupNavs"
+      :key="nav.name"
+      v-model="active"
       :items="tabItems"
-      :orientation="tabOrientation"
+      :orientation="nav.orientation"
+      :name="nav.name"
+      :class-name="nav.className"
       variant="pills"
       color="primary"
       size="md"
-      class="md:w-44 md:shrink-0"
-      @update:model-value="(value) => (active = value)"
     >
       <template #tab="{ item }">
         {{ item.textValue }}

@@ -57,7 +57,7 @@ const formApi = [
   [
     'layout',
     "'stack' | 'tabs'",
-    "默认 'stack'。'tabs' 会把分组列表放到字段区域旁边。"
+    "默认 'stack'。'tabs' 把分组列表放到字段区域旁边：窄屏横向、md 以上纵向。两份 DOM 用 CSS 切换，不靠 JS media query。"
   ],
   [
     'disabled',
