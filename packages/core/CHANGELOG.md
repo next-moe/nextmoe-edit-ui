@@ -1,5 +1,11 @@
 # @nextmoe/edit-ui-core
 
+## 0.1.2
+
+### Patch Changes
+
+- ff7104f: Stop driving SchemaForm tab orientation from `useMediaQuery`. Tabs layout now renders two KunTab copies (horizontal + `md:hidden`, vertical + `hidden md:block`) so SSR and the client produce the same DOM.
+
 ## 0.1.1
 
 ### Patch Changes
