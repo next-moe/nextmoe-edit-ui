@@ -84,6 +84,16 @@ describe('resolveControl', () => {
   it('still falls back to a scalar list with no configuration', () => {
     expect(resolveControl(field('list', 'items'))).toBe('string-list')
   })
+
+  it('refuses to offer a text box for an enum whose values it does not know', () => {
+    expect(resolveControl(field('enum', 'inline'))).toBe('readonly')
+    expect(
+      resolveControl(field('enum', 'inline'), {
+        label: '分级',
+        options: [{ value: 0, label: '全年龄' }]
+      })
+    ).toBe('select')
+  })
 })
 
 describe('overElementCap', () => {

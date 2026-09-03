@@ -38,8 +38,12 @@ export const resolveControl = (
   switch (field.kind) {
     case 'text':
       return field.diff_hint === 'lines' ? 'textarea' : 'input'
+    // An enum's vocabulary lives on the server; a free text input invites a
+    // value it will reject — content_rating wants an integer, display_nsfw a
+    // boolean — so an enum with no declared options is read-only, not a text
+    // box, on the same grounds as an unknown control.
     case 'enum':
-      return config?.options?.length ? 'select' : 'input'
+      return config?.options?.length ? 'select' : 'readonly'
     case 'int':
       return 'number'
     case 'ref':
