@@ -1,0 +1,2219 @@
+{
+  "generated_from": {
+    "repo": "nextmoe-infra",
+    "branch": "w161-hotfix",
+    "sha": "3454161d"
+  },
+  "total_fields": 50,
+  "notes": {
+    "json_numbers": "HTTP JSON unmarshals into map[string]any via encoding/json, so every JSON number arrives as float64. Helpers that accept float64 (and optionally int64) and reject strings are recorded as json_type integer. Sending the string \"3\" is a 422.",
+    "max_elements_default": "editing.DefaultMaxElements = 200 (editing/registry.go:111). asArray/asArrayN use editspec.maxListElements which aliases that constant (editspec/curated.go:103). FieldSpec.MaxElements is not rewritten at Register time; the effective cap is the one Validate enforces.",
+    "max_suppressed_default": "editing.maxSuppressedKeys = 200 (editing/suppression.go:16). SuppressedFieldSpec copies parent.MaxSuppressed, or that default when the parent left it 0 (editing/suppression.go:46-49).",
+    "policy": "No FieldSpec in catalog/editspec sets Policy; every field inherits EntityTypeSpec.DefaultPolicy. SiteOverlays overlay every registered key of that type, including .suppressed companions, because the overlay maps are built from the same Fields slice the companions are appended to."
+  },
+  "entity_types": [
+    {
+      "type": "catalog.character",
+      "field_count": 17,
+      "fields": [
+        {
+          "key": "catalog.character.aliases",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 200,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {
+              "propose": "open",
+              "review": "perm:edit.catalog.character.review",
+              "automerge": "never",
+              "owner_review": false
+            },
+            "letmoe": {
+              "propose": "trusted",
+              "review": "perm:edit.catalog.character.review",
+              "automerge": "owner",
+              "owner_review": false
+            },
+            "letmoe-staging": {
+              "propose": "trusted",
+              "review": "perm:edit.catalog.character.review",
+              "automerge": "owner",
+              "owner_review": false
+            },
+            "letmoe-dev": {
+              "propose": "trusted",
+              "review": "perm:edit.catalog.character.review",
+              "automerge": "owner",
+              "owner_review": false
+            }
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 4,
+            "format": "alias:<kind>:<lang>:<text>",
+            "notes": "TrailingText true. kind is decimal; lang carries no colon; text is textnorm.Clean of name. No entity-id segment. KeyCheck is kindLangTextKeyCheck(\"alias\").",
+            "source": "editspec/character_aliases.go:157"
+          },
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["name", "lang", "kind", "latin", "primary"],
+            "properties": [
+              {
+                "name": "name",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 300 runes (maxNameRunes)",
+                "source": "editspec/character_aliases.go:34"
+              },
+              {
+                "name": "lang",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": ["ar", "be", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fi", "fr", "ga", "gd", "he", "hi", "hr", "hu", "id", "it", "iu", "ja", "ko", "la", "lt", "lv", "mk", "ms", "nl", "no", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sr", "sv", "ta", "th", "tr", "uk", "ur", "vi", "zh", "zh-Hans", "zh-Hant"],
+                "enum_meaning": "same closed set as catalog.work.olang (olangAllowed). Empty lang is not accepted here.",
+                "constraints": "must be a string; at most 32 runes before the whitelist check",
+                "source": "editspec/character_aliases.go:38"
+              },
+              {
+                "name": "kind",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": [0, 1],
+                "enum_meaning": "0=translation (AliasKindTranslation), 1=spelling_variant (AliasKindSpellingVariant). kind 2 (search hint) is machine-owned and rejected.",
+                "constraints": "JSON number that is a whole number; objInt accepts float64 or int64 and rejects strings",
+                "source": "editspec/character_aliases.go:45"
+              },
+              {
+                "name": "latin",
+                "json_type": "string",
+                "required": false,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "omittable; if present must be a string of at most 300 runes. JSON null is rejected. Empty string is accepted (required=false).",
+                "source": "editspec/character_aliases.go:53"
+              },
+              {
+                "name": "primary",
+                "json_type": "boolean",
+                "required": false,
+                "nullable": false,
+                "enum": [true, false],
+                "enum_meaning": "IsPrimaryForLocale. Absent defaults to false.",
+                "constraints": "if present must be a JSON boolean; JSON null is rejected",
+                "source": "editspec/character_aliases.go:57"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of alias objects", "message": "must be an array of alias objects", "source": "editspec/character_aliases.go:23"},
+            {"rule": "at most 200 elements (asArray → maxListElements)", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "each element is an object with only name, lang, kind, latin, primary", "message": "element %d: unknown key %q", "source": "editspec/character_aliases.go:30"},
+            {"rule": "name required non-empty string ≤300 runes", "message": "element %d: name is required / must be a string / must not be empty / must be at most 300 characters", "source": "editspec/character_aliases.go:34"},
+            {"rule": "lang must be in olangAllowed", "message": "element %d: %q is not an allowed language", "source": "editspec/character_aliases.go:43"},
+            {"rule": "kind 0 or 1", "message": "element %d: kind must be 0 (translation) or 1 (spelling_variant); kind 2 (search hint) is machine-owned and not editable", "source": "editspec/character_aliases.go:50"},
+            {"rule": "unique (name, lang); kind is not part of uniqueness", "message": "element %d: duplicate (name, lang)", "source": "editspec/character_aliases.go:65"},
+            {"rule": "apply-time: curated (name, lang) must not collide with an upstream row", "message": "%q (%s) is already provided upstream for this character; to hide it use catalog.character.aliases.suppressed instead of re-adding it", "source": "editspec/character_aliases.go:141"}
+          ],
+          "source": "editspec/character.go:95"
+        },
+        {
+          "key": "catalog.character.aliases.suppressed",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 200,
+          "is_suppression_companion": true,
+          "suppression_parent": "catalog.character.aliases",
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 4,
+            "format": "alias:<kind>:<lang>:<text>",
+            "notes": "Companion values are the parent's identity keys. Parent.MaxSuppressed is 0 so the engine default 200 applies. KeyCheck is kindLangTextKeyCheck(\"alias\"): 4 colon-split segments, numeric kind fitting int16, non-empty text identical to textnorm.Clean(text).",
+            "source": "editing/suppression.go:43"
+          },
+          "element": {
+            "shape": "string",
+            "allowed_keys": null,
+            "properties": null
+          },
+          "validation": [
+            {"rule": "must be an array of identity-key strings", "message": "must be an array of identity keys", "source": "editing/suppression.go:94"},
+            {"rule": "at most 200 keys", "message": "must contain at most 200 identity keys", "source": "editing/suppression.go:100"},
+            {"rule": "each element is a non-empty string", "message": "element %d: must be a string / must not be empty", "source": "editing/suppression.go:106"},
+            {"rule": "each key at most 512 runes", "message": "element %d: must be at most 512 characters", "source": "editing/suppression.go:112"},
+            {"rule": "keys sorted ascending and unique (byte order, strict <)", "message": "element %d: identity keys must be sorted ascending and unique", "source": "editing/suppression.go:115"},
+            {"rule": "format alias:<kind>:<lang>:<text>", "message": "%q is not an identity key of this field: expected alias:<kind>:<lang>:<text>", "source": "editspec/identity.go:23"},
+            {"rule": "kind segment is numeric", "message": "%q is not an identity key of this field: %q is not a numeric kind", "source": "editspec/identity.go:26"},
+            {"rule": "text segment non-empty", "message": "%q is not an identity key of this field: the text segment is empty", "source": "editspec/identity.go:29"},
+            {"rule": "text segment already textnorm.Clean'd", "message": "%q is not the canonical form of this key: the text segment carries invisible or edge whitespace, so it would suppress nothing; send %q instead", "source": "editspec/identity.go:32"}
+          ],
+          "source": "editspec/character.go:121"
+        },
+        {
+          "key": "catalog.character.birthday_day",
+          "kind": "int",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "JSON null clears the column", "message": null, "source": "editspec/character.go:242"},
+            {"rule": "otherwise a whole JSON number in 1..31", "message": "must be an integer or null", "source": "editspec/character.go:247"},
+            {"rule": "range 1..31", "message": "must be between 1 and 31", "source": "editspec/character.go:251"},
+            {"rule": "strings rejected; only float64 is accepted (int64 is not)", "message": "must be an integer or null", "source": "editspec/character.go:245"}
+          ],
+          "source": "editspec/character.go:111"
+        },
+        {
+          "key": "catalog.character.birthday_month",
+          "kind": "int",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "JSON null clears the column", "message": null, "source": "editspec/character.go:242"},
+            {"rule": "otherwise a whole JSON number in 1..12", "message": "must be an integer or null", "source": "editspec/character.go:247"},
+            {"rule": "range 1..12", "message": "must be between 1 and 12", "source": "editspec/character.go:251"}
+          ],
+          "source": "editspec/character.go:110"
+        },
+        {
+          "key": "catalog.character.blood_type",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": [1, 2, 3, 4],
+          "enum_meaning": "1=A (BloodTypeA), 2=B (BloodTypeB), 3=AB (BloodTypeAB), 4=O (BloodTypeO). Public v2 vocabulary uses strings a/b/ab/o — those tokens are 422 here. JSON null is accepted.",
+          "validation": [
+            {"rule": "null or integer in {1,2,3,4}", "message": "must be an integer or null", "source": "editspec/character.go:276"},
+            {"rule": "closed set", "message": "must be one of [1 2 3 4], or null", "source": "editspec/character.go:284"}
+          ],
+          "source": "editspec/character.go:112"
+        },
+        {
+          "key": "catalog.character.bust_cm",
+          "kind": "int",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "null or integer 1..500", "message": "must be an integer or null / must be between 1 and 500", "source": "editspec/character.go:116"}
+          ],
+          "source": "editspec/character.go:116"
+        },
+        {
+          "key": "catalog.character.cup",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "JSON null clears the column", "message": null, "source": "editspec/character.go:179"},
+            {"rule": "otherwise a string of at most 8 runes; empty string allowed", "message": "must be a string / must be at most 8 characters", "source": "editspec/character.go:227"}
+          ],
+          "source": "editspec/character.go:119"
+        },
+        {
+          "key": "catalog.character.description",
+          "kind": "text",
+          "diff_hint": "lines",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "must be a string (empty allowed; JSON null is not)", "message": "must be a string", "source": "editspec/taxonomy.go:254"},
+            {"rule": "at most 50000 runes (maxIntroRunes)", "message": "must be at most 50000 characters", "source": "editspec/taxonomy.go:259"}
+          ],
+          "source": "editspec/character.go:107"
+        },
+        {
+          "key": "catalog.character.display_name",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "must be a string", "message": "must be a string", "source": "editspec/character.go:229"},
+            {"rule": "must not be empty after trim", "message": "must not be empty", "source": "editspec/character.go:233"},
+            {"rule": "at most 300 runes (maxNameRunes)", "message": "must be at most 300 characters", "source": "editspec/character.go:235"}
+          ],
+          "source": "editspec/character.go:104"
+        },
+        {
+          "key": "catalog.character.gender",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": [1, 2, 3],
+          "enum_meaning": "1=male (GenderMale), 2=female (GenderFemale), 3=other (GenderOther). There is no 0. Public v2 vocabulary uses strings male/female/other — those tokens are 422 here. JSON null is accepted.",
+          "validation": [
+            {"rule": "null or integer in {1,2,3}", "message": "must be an integer or null", "source": "editspec/character.go:276"},
+            {"rule": "closed set", "message": "must be one of [1 2 3], or null", "source": "editspec/character.go:284"}
+          ],
+          "source": "editspec/character.go:108"
+        },
+        {
+          "key": "catalog.character.height_cm",
+          "kind": "int",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "null or integer 1..1000", "message": "must be an integer or null / must be between 1 and 1000", "source": "editspec/character.go:114"}
+          ],
+          "source": "editspec/character.go:114"
+        },
+        {
+          "key": "catalog.character.hip_cm",
+          "kind": "int",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "null or integer 1..500", "message": "must be an integer or null / must be between 1 and 500", "source": "editspec/character.go:118"}
+          ],
+          "source": "editspec/character.go:118"
+        },
+        {
+          "key": "catalog.character.intros",
+          "kind": "list",
+          "diff_hint": "lines",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": "No .suppressed companion: suppressing one lang would promote the next upstream row rather than remove the text (editspec/character_intros.go:11-15).", "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["lang", "intro"],
+            "properties": [
+              {
+                "name": "lang",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": ["en", "ja", "zh-Hans", "zh-Hant"],
+                "enum_meaning": "introLangs, not the full olangAllowed set",
+                "constraints": "at most 32 runes before the whitelist",
+                "source": "editspec/work_intros.go:32"
+              },
+              {
+                "name": "intro",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 50000 runes",
+                "source": "editspec/work_intros.go:50"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of intro objects", "message": "must be an array of intro objects", "source": "editspec/work_intros.go:21"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "lang one of en, ja, zh-Hans, zh-Hant", "message": "element %d: lang must be one of en, ja, zh-Hans, zh-Hant", "source": "editspec/work_intros.go:44"},
+            {"rule": "one row per lang", "message": "element %d: duplicate lang %q", "source": "editspec/work_intros.go:47"},
+            {"rule": "empty array is allowed (clears curated intros)", "message": null, "source": "editspec/work_intros.go:20"}
+          ],
+          "source": "editspec/character.go:122"
+        },
+        {
+          "key": "catalog.character.lang",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": ["", "ar", "be", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fi", "fr", "ga", "gd", "he", "hi", "hr", "hu", "id", "it", "iu", "ja", "ko", "la", "lt", "lv", "mk", "ms", "nl", "no", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sr", "sv", "ta", "th", "tr", "uk", "ur", "vi", "zh", "zh-Hans", "zh-Hant"],
+          "enum_meaning": "Empty string is the recorded unknown (column is NOT NULL). Otherwise olangAllowed. JSON null is rejected.",
+          "validation": [
+            {"rule": "must be a string", "message": "must be a string", "source": "editspec/character.go:160"},
+            {"rule": "empty string allowed as unknown", "message": null, "source": "editspec/character.go:162"},
+            {"rule": "otherwise in olangAllowed", "message": "%q is not an allowed language", "source": "editspec/character.go:166"}
+          ],
+          "source": "editspec/character.go:105"
+        },
+        {
+          "key": "catalog.character.latin",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "JSON null clears the column", "message": null, "source": "editspec/character.go:179"},
+            {"rule": "otherwise a string of at most 300 runes; empty string allowed", "message": "must be a string / must be at most 300 characters", "source": "editspec/character.go:227"}
+          ],
+          "source": "editspec/character.go:106"
+        },
+        {
+          "key": "catalog.character.waist_cm",
+          "kind": "int",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "null or integer 1..500", "message": "must be an integer or null / must be between 1 and 500", "source": "editspec/character.go:117"}
+          ],
+          "source": "editspec/character.go:117"
+        },
+        {
+          "key": "catalog.character.weight_kg",
+          "kind": "int",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.character",
+            "review": "perm:edit.catalog.character.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.character.review", "automerge": "never", "owner_review": false},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.character.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "null or integer 1..1000", "message": "must be an integer or null / must be between 1 and 1000", "source": "editspec/character.go:115"}
+          ],
+          "source": "editspec/character.go:115"
+        }
+      ]
+    },
+    {
+      "type": "catalog.engine",
+      "field_count": 3,
+      "fields": [
+        {
+          "key": "catalog.engine.aliases",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "string"},
+          "validation": [
+            {"rule": "must be an array of alias strings", "message": "must be an array of alias strings", "source": "editspec/taxonomy.go:270"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "each element is a string", "message": "element %d: must be a string", "source": "editspec/taxonomy.go:279"},
+            {"rule": "trimmed; must not be empty", "message": "element %d: must not be empty", "source": "editspec/taxonomy.go:283"},
+            {"rule": "at most 300 runes after trim", "message": "element %d: must be at most 300 characters", "source": "editspec/taxonomy.go:286"},
+            {"rule": "unique after trim", "message": "element %d: duplicate alias", "source": "editspec/taxonomy.go:289"}
+          ],
+          "source": "editspec/taxonomy.go:173"
+        },
+        {
+          "key": "catalog.engine.intro",
+          "kind": "text",
+          "diff_hint": "lines",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "must be a string (empty allowed; JSON null is not)", "message": "must be a string", "source": "editspec/taxonomy.go:254"},
+            {"rule": "at most 50000 runes", "message": "must be at most 50000 characters", "source": "editspec/taxonomy.go:259"}
+          ],
+          "source": "editspec/taxonomy.go:169"
+        },
+        {
+          "key": "catalog.engine.name",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "must be a string", "message": "must be a string", "source": "editspec/taxonomy.go:241"},
+            {"rule": "must not be empty after trim", "message": "must not be empty", "source": "editspec/taxonomy.go:245"},
+            {"rule": "at most 300 runes", "message": "must be at most 300 characters", "source": "editspec/taxonomy.go:248"}
+          ],
+          "source": "editspec/taxonomy.go:164"
+        }
+      ]
+    },
+    {
+      "type": "catalog.label",
+      "field_count": 3,
+      "fields": [
+        {
+          "key": "catalog.label.intros",
+          "kind": "list",
+          "diff_hint": "lines",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["lang", "intro"],
+            "properties": [
+              {
+                "name": "lang",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": ["en", "ja", "zh-Hans", "zh-Hant"],
+                "enum_meaning": "introLangs",
+                "constraints": "at most 32 runes before the whitelist",
+                "source": "editspec/work_intros.go:32"
+              },
+              {
+                "name": "intro",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 50000 runes",
+                "source": "editspec/work_intros.go:50"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "same parseIntros as catalog.work.intros", "message": "must be an array of intro objects", "source": "editspec/taxonomy.go:91"},
+            {"rule": "lang one of en, ja, zh-Hans, zh-Hant; unique per lang; intro required ≤50000 runes", "message": "element %d: lang must be one of en, ja, zh-Hans, zh-Hant", "source": "editspec/work_intros.go:44"}
+          ],
+          "source": "editspec/taxonomy.go:89"
+        },
+        {
+          "key": "catalog.label.links",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "string"},
+          "validation": [
+            {"rule": "must be an array of URL strings", "message": "must be an array of URL strings", "source": "editspec/work_links.go:117"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "each element is a string", "message": "element %d: must be a URL string", "source": "editspec/work_links.go:126"},
+            {"rule": "at most 2000 runes after trim", "message": "element %d: URL must be at most 2000 characters", "source": "editspec/work_links.go:130"},
+            {"rule": "must classify as http:// or https:// (archive.org wrappers unwrapped first)", "message": "element %d: must be an http:// or https:// URL", "source": "editspec/work_links.go:134"},
+            {"rule": "unique after canonicalisation (vndb/bangumi/twitter/cien/steam/pixiv/dlsite templates, else the raw URL as source web)", "message": "element %d: duplicate URL", "source": "editspec/work_links.go:138"},
+            {"rule": "apply-time: source key must exist in catalog_source", "message": "source %q is not registered", "source": "editspec/work_links.go:185"},
+            {"rule": "apply-time: must not re-add an upstream-owned (source, external_id)", "message": "this URL is already linked upstream (%s:%s); upstream links cannot be re-added through the editor yet", "source": "editspec/work_links.go:245"}
+          ],
+          "source": "editspec/taxonomy.go:94"
+        },
+        {
+          "key": "catalog.label.name",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "must be a non-empty string of at most 300 runes (writes catalog_label.display_name)", "message": "must be a string / must not be empty / must be at most 300 characters", "source": "editspec/taxonomy.go:239"}
+          ],
+          "source": "editspec/taxonomy.go:81"
+        }
+      ]
+    },
+    {
+      "type": "catalog.release",
+      "field_count": 6,
+      "fields": [
+        {
+          "key": "catalog.release.hidden",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "boolean",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.release",
+            "review": "perm:edit.catalog.release.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.release.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": [true, false],
+          "enum_meaning": "true stamps catalog_release.deleted_at (COALESCE existing, now()); false clears it. Kind is enum; the wire value is a JSON boolean, not a string.",
+          "validation": [
+            {"rule": "must be a JSON boolean", "message": "must be a boolean", "source": "editspec/curated.go:201"}
+          ],
+          "source": "editspec/release.go:152"
+        },
+        {
+          "key": "catalog.release.kind",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.release",
+            "review": "perm:edit.catalog.release.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.release.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": [0, 1, 2, 3, 4],
+          "enum_meaning": "0=default, 1=digital, 2=physical, 3=trial, 4=patch (ReleaseKind*). Public v2 vocabulary uses those strings; the editor must send the integers. JSON null is rejected. Only float64 is accepted (int64 is not).",
+          "validation": [
+            {"rule": "must be a whole JSON number", "message": "must be an integer", "source": "editspec/release.go:176"},
+            {"rule": "closed set 0..4", "message": "must be 0 (default), 1 (digital), 2 (physical), 3 (trial) or 4 (patch)", "source": "editspec/release.go:183"}
+          ],
+          "source": "editspec/release.go:103"
+        },
+        {
+          "key": "catalog.release.lang",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.release",
+            "review": "perm:edit.catalog.release.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.release.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": ["ar", "be", "bg", "ca", "ck", "cs", "da", "de", "el", "en", "eo", "es", "et", "eu", "fa", "fi", "fr", "ga", "gd", "gl", "he", "hi", "hr", "hu", "id", "it", "iu", "ja", "kk", "ko", "la", "lt", "lv", "mk", "ms", "nl", "no", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sr", "sv", "ta", "th", "tr", "uk", "ur", "vi", "zh", "zh-Hans", "zh-Hant"],
+          "enum_meaning": "olangAllowed plus releaseLangExtra {ck, et, eu, fa, gl, kk}. JSON null is accepted (clears the column). Empty string is not in either map and is rejected.",
+          "validation": [
+            {"rule": "JSON null allowed", "message": null, "source": "editspec/release.go:201"},
+            {"rule": "otherwise a string", "message": "must be a string or null", "source": "editspec/release.go:206"},
+            {"rule": "must be in olangAllowed or releaseLangExtra", "message": "%q is not an allowed language", "source": "editspec/release.go:209"}
+          ],
+          "source": "editspec/release.go:120"
+        },
+        {
+          "key": "catalog.release.platform",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.release",
+            "review": "perm:edit.catalog.release.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.release.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": ["and", "bdp", "dos", "drc", "dvd", "fm7", "fmt", "gba", "gbc", "ios", "lin", "mac", "mob", "msx", "n3d", "nds", "nes", "oth", "p88", "p98", "pce", "pcf", "ps1", "ps2", "ps3", "ps4", "ps5", "psp", "psv", "sat", "scd", "sfc", "smd", "sw2", "swi", "tdo", "vnd", "web", "wii", "win", "wiu", "x1s", "x68", "xb1", "xb3", "xbo", "xxs"],
+          "enum_meaning": "releasePlatformAllowed three-letter codes (editspec/release.go:33-40). JSON null is accepted.",
+          "validation": [
+            {"rule": "JSON null allowed", "message": null, "source": "editspec/release.go:215"},
+            {"rule": "otherwise a string", "message": "must be a string or null", "source": "editspec/release.go:220"},
+            {"rule": "must be in releasePlatformAllowed", "message": "%q is not an allowed platform", "source": "editspec/release.go:223"}
+          ],
+          "source": "editspec/release.go:131"
+        },
+        {
+          "key": "catalog.release.released",
+          "kind": "date",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "object",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.release",
+            "review": "perm:edit.catalog.release.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.release.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": "Non-list, so element.shape is scalar per the census rule; the wire value is nevertheless a JSON object {y, m?, d?} or null.", "source": null},
+          "element": {"shape": "scalar"},
+          "date_object": {
+            "allowed_keys": ["y", "m", "d"],
+            "properties": [
+              {
+                "name": "y",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "constraints": "1950..2200 inclusive; JSON number only (float64); strings rejected",
+                "source": "editspec/release.go:252"
+              },
+              {
+                "name": "m",
+                "json_type": "integer",
+                "required": false,
+                "nullable": true,
+                "enum": null,
+                "constraints": "if present and not JSON null: 1..12",
+                "source": "editspec/release.go:257"
+              },
+              {
+                "name": "d",
+                "json_type": "integer",
+                "required": false,
+                "nullable": true,
+                "enum": null,
+                "constraints": "if present and not JSON null: requires m, then 1..31. No calendar-validity check (31 Feb is accepted).",
+                "source": "editspec/release.go:265"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "JSON null clears released_y/m/d", "message": null, "source": "editspec/release.go:234"},
+            {"rule": "otherwise a date object", "message": "must be a date object or null", "source": "editspec/release.go:239"},
+            {"rule": "only keys y, m, d", "message": "unknown key %q", "source": "editspec/release.go:245"},
+            {"rule": "y is required and must not be JSON null", "message": "y is required", "source": "editspec/release.go:250"},
+            {"rule": "y is an integer 1950..2200", "message": "y must be an integer / y must be between 1950 and 2200", "source": "editspec/release.go:280"},
+            {"rule": "m if present and non-null is 1..12", "message": "m must be an integer / m must be between 1 and 12", "source": "editspec/release.go:258"},
+            {"rule": "d requires m", "message": "d requires m", "source": "editspec/release.go:267"},
+            {"rule": "d if present and non-null is 1..31", "message": "d must be an integer / d must be between 1 and 31", "source": "editspec/release.go:269"}
+          ],
+          "source": "editspec/release.go:142"
+        },
+        {
+          "key": "catalog.release.title",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": true,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.release",
+            "review": "perm:edit.catalog.release.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.release.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.release.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "JSON null allowed (clears the column)", "message": null, "source": "editspec/release.go:194"},
+            {"rule": "otherwise a string of at most 300 runes; empty string allowed", "message": "must be a string / must be at most 300 characters", "source": "editspec/character.go:227"}
+          ],
+          "source": "editspec/release.go:109"
+        }
+      ]
+    },
+    {
+      "type": "catalog.series",
+      "field_count": 2,
+      "fields": [
+        {
+          "key": "catalog.series.intros",
+          "kind": "list",
+          "diff_hint": "lines",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["lang", "intro"],
+            "properties": [
+              {
+                "name": "lang",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": ["en", "ja", "zh-Hans", "zh-Hant"],
+                "enum_meaning": "introLangs",
+                "constraints": null,
+                "source": "editspec/work_intros.go:32"
+              },
+              {
+                "name": "intro",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 50000 runes",
+                "source": "editspec/work_intros.go:50"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "same parseIntros as catalog.work.intros", "message": "must be an array of intro objects", "source": "editspec/taxonomy.go:210"}
+          ],
+          "source": "editspec/taxonomy.go:209"
+        },
+        {
+          "key": "catalog.series.name",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "must be a non-empty string of at most 300 runes", "message": "must be a string / must not be empty / must be at most 300 characters", "source": "editspec/taxonomy.go:239"},
+            {"rule": "apply-time: only a curated series (source_id = 12) can be renamed", "message": "only a CURATED series can be renamed here (an upstream series' name is reconciled by its importer)", "source": "editspec/taxonomy.go:340"}
+          ],
+          "source": "editspec/taxonomy.go:205"
+        }
+      ]
+    },
+    {
+      "type": "catalog.tag",
+      "field_count": 1,
+      "fields": [
+        {
+          "key": "catalog.tag.intros",
+          "kind": "list",
+          "diff_hint": "lines",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.taxonomy",
+            "review": "perm:edit.catalog.taxonomy.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.taxonomy.review", "automerge": "never", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["lang", "intro"],
+            "properties": [
+              {
+                "name": "lang",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": ["en", "ja", "zh-Hans", "zh-Hant"],
+                "enum_meaning": "introLangs",
+                "constraints": null,
+                "source": "editspec/work_intros.go:32"
+              },
+              {
+                "name": "intro",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 50000 runes",
+                "source": "editspec/work_intros.go:50"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "same parseIntros as catalog.work.intros", "message": "must be an array of intro objects", "source": "editspec/taxonomy.go:137"}
+          ],
+          "source": "editspec/taxonomy.go:135"
+        }
+      ]
+    },
+    {
+      "type": "catalog.work",
+      "field_count": 18,
+      "fields": [
+        {
+          "key": "catalog.work.content_rating",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "integer",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": [0, 1, 2],
+          "enum_meaning": "0=all_ages (ContentRatingAllAges), 1=sensitive (ContentRatingSensitive), 2=r18 (ContentRatingR18). Public v2 vocabulary uses those strings; the editor must send the integers. Only float64 is accepted.",
+          "validation": [
+            {"rule": "must be a whole JSON number", "message": "must be an integer", "source": "editspec/work.go:315"},
+            {"rule": "closed set 0..2", "message": "must be 0 (all_ages), 1 (sensitive) or 2 (r18)", "source": "editspec/work.go:321"}
+          ],
+          "source": "editspec/work.go:226"
+        },
+        {
+          "key": "catalog.work.covers",
+          "kind": "list",
+          "diff_hint": "image",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["image_hash", "kind", "portrait_pinned", "sexual", "violence"],
+            "properties": [
+              {
+                "name": "image_hash",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 128 runes. No regex. Hash is produced by POST /v2/me/edit-images (preset=cover).",
+                "source": "editspec/work_media.go:58"
+              },
+              {
+                "name": "kind",
+                "json_type": "string",
+                "required": false,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": "Open vocabulary. Public read face documents cover_kind as main, dig, pkgfront, pkgback and friends (apiv2/repr/image.go:22) but the editor does not whitelist them.",
+                "constraints": "omittable; if present a string of at most 64 runes; empty string allowed",
+                "source": "editspec/work_media.go:66"
+              },
+              {
+                "name": "portrait_pinned",
+                "json_type": "boolean",
+                "required": false,
+                "nullable": false,
+                "enum": [true, false],
+                "enum_meaning": "Absent defaults to false. At most one element in the array may be true.",
+                "constraints": "if present must be a JSON boolean",
+                "source": "editspec/work_media.go:70"
+              },
+              {
+                "name": "sexual",
+                "json_type": "integer",
+                "required": false,
+                "nullable": false,
+                "enum": [0, 1, 2],
+                "enum_meaning": "0=safe (SexualSafe), 1=suggestive (SexualSuggestive), 2=explicit (SexualExplicit). Public v2 vocabulary uses strings safe/suggestive/explicit. Absent defaults to 0. JSON null is rejected.",
+                "constraints": "whole JSON number 0..2",
+                "source": "editspec/work_media.go:77"
+              },
+              {
+                "name": "violence",
+                "json_type": "integer",
+                "required": false,
+                "nullable": false,
+                "enum": [0, 1, 2],
+                "enum_meaning": "Validator only says 0, 1 or 2. Public v2 vocabulary: 0=tame, 1=violent, 2=brutal. dto/read_dto.go comments 0=safe 1=suggestive 2=explicit for both axes. Absent defaults to 0. JSON null is rejected.",
+                "constraints": "whole JSON number 0..2",
+                "source": "editspec/work_media.go:81"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of cover objects", "message": "must be an array of cover objects", "source": "editspec/work_media.go:46"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "image_hash unique within the array", "message": "element %d: duplicate image_hash", "source": "editspec/work_media.go:63"},
+            {"rule": "at most one portrait_pinned true", "message": "at most one cover may set portrait_pinned", "source": "editspec/work_media.go:91"},
+            {"rule": "array order is the written sort_order", "message": null, "source": "editspec/work_media.go:120"},
+            {"rule": "apply-time: image_hash must not already exist on an upstream (non-curated) cover for this work", "message": "image %s is already collected upstream for this work; upstream media rows cannot be restyled through the editor yet", "source": "editspec/work_media.go:151"}
+          ],
+          "source": "editspec/work.go:270"
+        },
+        {
+          "key": "catalog.work.credits",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 500,
+          "max_suppressed": 500,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 4,
+            "format": "credit:<role_id>:<credit_name_id>:<character_id>",
+            "notes": "character_id is 0 when the credit names no character (ZeroAbsent on that ref). role_id and credit_name_id must be positive. Canonical decimal ids (no leading zeros).",
+            "source": "editspec/work_credits.go:296"
+          },
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["role_id", "credit_name_id", "character_id", "note"],
+            "properties": [
+              {
+                "name": "role_id",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": "Positive catalog_role.id. Not a closed set in Validate; apply rejects unknown and deprecated ids. Public credit blocks publish role_key/role_name, not role_id.",
+                "constraints": "positive integer; objInt accepts float64 or int64",
+                "source": "editspec/work_credits.go:46"
+              },
+              {
+                "name": "credit_name_id",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": "Positive catalog_credit_name.id.",
+                "constraints": "positive integer",
+                "source": "editspec/work_credits.go:53"
+              },
+              {
+                "name": "character_id",
+                "json_type": "integer",
+                "required": false,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": "Positive catalog_character.id when the credit is a voice on a character. Omit (do not send 0 or null) when the credit names no character.",
+                "constraints": "if present: positive integer; JSON null is rejected",
+                "source": "editspec/work_credits.go:61"
+              },
+              {
+                "name": "note",
+                "json_type": "string",
+                "required": false,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "omittable; if present a string of at most 500 runes; empty string allowed",
+                "source": "editspec/work_credits.go:70"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of credit objects", "message": "must be an array of credit objects", "source": "editspec/work_credits.go:35"},
+            {"rule": "at most 500 elements (maxCreditElements, not the 200 default)", "message": "must contain at most 500 elements", "source": "editspec/work_credits.go:22"},
+            {"rule": "role_id positive", "message": "element %d: role_id must be a positive id", "source": "editspec/work_credits.go:51"},
+            {"rule": "credit_name_id positive", "message": "element %d: credit_name_id must be a positive id", "source": "editspec/work_credits.go:58"},
+            {"rule": "character_id if present must be positive; omit when naming no character", "message": "element %d: character_id must be a positive id; omit it when the credit names no character", "source": "editspec/work_credits.go:67"},
+            {"rule": "unique (role_id, credit_name_id, character_id); note is not part of uniqueness", "message": "element %d: duplicate (role_id, credit_name_id, character_id)", "source": "editspec/work_credits.go:76"},
+            {"rule": "apply-time: role/credit_name/character ids must exist; roles must not be deprecated", "message": "no role has id %s; role %s is deprecated: the vocabulary retired it, so it cannot be newly assigned; no credited name has id %s; no character has id %s", "source": "editspec/work_credits.go:193"},
+            {"rule": "apply-time: must not re-add an upstream-owned credit", "message": "%q (%s) is already provided upstream for this work; to hide it use catalog.work.credits.suppressed instead of re-adding it", "source": "editspec/work_credits.go:278"}
+          ],
+          "source": "editspec/work.go:172"
+        },
+        {
+          "key": "catalog.work.credits.suppressed",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 500,
+          "max_suppressed": 500,
+          "is_suppression_companion": true,
+          "suppression_parent": "catalog.work.credits",
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 4,
+            "format": "credit:<role_id>:<credit_name_id>:<character_id>",
+            "notes": "Parent MaxSuppressed is 500. character_id may be 0. Public credit objects publish an opaque identity string to echo back; role_id is not on the public credit object so the key cannot be rebuilt from the read face.",
+            "source": "editspec/work_credits.go:317"
+          },
+          "element": {"shape": "string"},
+          "validation": [
+            {"rule": "array of identity-key strings, at most 500, each ≤512 runes, sorted ascending unique", "message": "must be an array of identity keys / must contain at most 500 identity keys / element %d: identity keys must be sorted ascending and unique", "source": "editing/suppression.go:91"},
+            {"rule": "format credit:<role_id>:<credit_name_id>:<character_id>", "message": "%q is not an identity key of this field: expected credit:<role_id>:<credit_name_id>:<character_id>", "source": "editspec/work_credits.go:320"},
+            {"rule": "each id segment is a canonical decimal integer ≥0 (no leading zeros)", "message": "%q is not an identity key of this field: %q is not a canonical id", "source": "editspec/work_credits.go:326"},
+            {"rule": "role_id and credit_name_id must be positive; character_id may be 0", "message": "%q is not an identity key of this field: role_id and credit_name_id must be positive", "source": "editspec/work_credits.go:331"}
+          ],
+          "source": "editspec/work.go:281"
+        },
+        {
+          "key": "catalog.work.display_name",
+          "kind": "text",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": "applyTitles also overwrites display_name from the official title matching olang, so a titles merge can clobber a display_name write in the same patch depending on apply order.", "source": null},
+          "element": {"shape": "scalar"},
+          "validation": [
+            {"rule": "must be a string", "message": "must be a string", "source": "editspec/work.go:289"},
+            {"rule": "must not be empty after trim", "message": "must not be empty", "source": "editspec/work.go:293"},
+            {"rule": "at most 500 runes (not maxNameRunes=300)", "message": "must be at most 500 characters", "source": "editspec/work.go:296"}
+          ],
+          "source": "editspec/work.go:214"
+        },
+        {
+          "key": "catalog.work.display_nsfw",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "boolean",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": [true, false],
+          "enum_meaning": "Kind is enum; the wire value is a JSON boolean. JSON null is rejected.",
+          "validation": [
+            {"rule": "must be a JSON boolean", "message": "must be a boolean", "source": "editspec/curated.go:201"}
+          ],
+          "source": "editspec/work.go:239"
+        },
+        {
+          "key": "catalog.work.engine_ids",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "integer"},
+          "validation": [
+            {"rule": "must be an array of engine ids", "message": "must be an array of engine ids", "source": "editspec/work_edges.go:57"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "each element is a positive whole JSON number (float64 or int64; strings rejected)", "message": "element %d: must be an integer id / element %d: id must be positive", "source": "editspec/work_edges.go:36"},
+            {"rule": "unique", "message": "element %d: duplicate id %d", "source": "editspec/work_edges.go:48"},
+            {"rule": "apply-time: every id must exist on catalog_engine", "message": "%d of %d ids do not exist", "source": "editspec/work_edges.go:357"}
+          ],
+          "source": "editspec/work.go:255"
+        },
+        {
+          "key": "catalog.work.intros",
+          "kind": "list",
+          "diff_hint": "lines",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": "No .suppressed companion.", "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["lang", "intro"],
+            "properties": [
+              {
+                "name": "lang",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": ["en", "ja", "zh-Hans", "zh-Hant"],
+                "enum_meaning": "introLangs, not olangAllowed",
+                "constraints": "at most 32 runes before the whitelist",
+                "source": "editspec/work_intros.go:32"
+              },
+              {
+                "name": "intro",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 50000 runes",
+                "source": "editspec/work_intros.go:50"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of intro objects", "message": "must be an array of intro objects", "source": "editspec/work_intros.go:21"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "lang one of en, ja, zh-Hans, zh-Hant", "message": "element %d: lang must be one of en, ja, zh-Hans, zh-Hant", "source": "editspec/work_intros.go:44"},
+            {"rule": "one row per lang", "message": "element %d: duplicate lang %q", "source": "editspec/work_intros.go:47"}
+          ],
+          "source": "editspec/work.go:234"
+        },
+        {
+          "key": "catalog.work.labels",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["label_id", "kind"],
+            "properties": [
+              {
+                "name": "label_id",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": "Positive catalog_label.id (public family name is company).",
+                "constraints": "positive integer",
+                "source": "editspec/work_edges.go:147"
+              },
+              {
+                "name": "kind",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": [0, 1, 2, 3],
+                "enum_meaning": "0=circle (WorkLabelKindCircle), 1=publisher, 2=developer, 3=brand. Public v2 attribution_role uses those strings.",
+                "constraints": "whole JSON number 0..3",
+                "source": "editspec/work_edges.go:154"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of label objects", "message": "must be an array of label objects", "source": "editspec/work_edges.go:136"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "label_id positive", "message": "element %d: label_id must be positive", "source": "editspec/work_edges.go:152"},
+            {"rule": "kind 0..3", "message": "element %d: kind must be 0 (circle), 1 (publisher), 2 (developer) or 3 (brand)", "source": "editspec/work_edges.go:162"},
+            {"rule": "unique (label_id, kind)", "message": "element %d: duplicate (label_id, kind)", "source": "editspec/work_edges.go:166"},
+            {"rule": "apply-time: every label_id must exist", "message": "%d of %d ids do not exist", "source": "editspec/work_edges.go:357"},
+            {"rule": "apply-time: must not re-add an upstream (label_id, kind)", "message": "label %d (kind %d) is already attached upstream; upstream label edges cannot be re-added through the editor yet", "source": "editspec/work_edges.go:237"}
+          ],
+          "source": "editspec/work.go:250"
+        },
+        {
+          "key": "catalog.work.links",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "string"},
+          "validation": [
+            {"rule": "must be an array of URL strings", "message": "must be an array of URL strings", "source": "editspec/work_links.go:117"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "each element is a string ≤2000 runes after trim", "message": "element %d: must be a URL string / URL must be at most 2000 characters", "source": "editspec/work_links.go:126"},
+            {"rule": "must be http:// or https:// after optional archive.org unwrap", "message": "element %d: must be an http:// or https:// URL", "source": "editspec/work_links.go:134"},
+            {"rule": "unique after canonicalisation (vndb, bangumi, twitter/x, cien, steam, pixiv, dlsite templates; else source web with the raw URL)", "message": "element %d: duplicate URL", "source": "editspec/work_links.go:138"},
+            {"rule": "apply-time: source key must exist in catalog_source", "message": "source %q is not registered", "source": "editspec/work_links.go:185"},
+            {"rule": "apply-time: must not re-add an upstream-owned (source, external_id)", "message": "this URL is already linked upstream (%s:%s); upstream links cannot be re-added through the editor yet", "source": "editspec/work_links.go:245"}
+          ],
+          "source": "editspec/work.go:265"
+        },
+        {
+          "key": "catalog.work.olang",
+          "kind": "enum",
+          "diff_hint": "inline",
+          "deprecated": false,
+          "json_type": "string",
+          "nullable": false,
+          "max_elements": null,
+          "max_suppressed": null,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "scalar"},
+          "enum": ["ar", "be", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fi", "fr", "ga", "gd", "he", "hi", "hr", "hu", "id", "it", "iu", "ja", "ko", "la", "lt", "lv", "mk", "ms", "nl", "no", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sr", "sv", "ta", "th", "tr", "uk", "ur", "vi", "zh", "zh-Hans", "zh-Hant"],
+          "enum_meaning": "olangAllowed, filled in init() from the literal list at editspec/work.go:44-49. Empty string and JSON null are rejected. Release lang is a superset of this set.",
+          "validation": [
+            {"rule": "must be a string", "message": "must be a string", "source": "editspec/work.go:303"},
+            {"rule": "must be in olangAllowed", "message": "%q is not an allowed original language", "source": "editspec/work.go:307"}
+          ],
+          "source": "editspec/work.go:220"
+        },
+        {
+          "key": "catalog.work.roster",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 500,
+          "max_suppressed": 500,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 2,
+            "format": "roster:<character_id>",
+            "notes": "character_id is a real foreign key with no 0 sentinel. This field UPDATEs existing roster rows; it does not INSERT or DELETE. Hiding a row is catalog.work.roster.suppressed.",
+            "source": "editspec/work_roster.go:217"
+          },
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["character_id", "kind", "spoiler"],
+            "properties": [
+              {
+                "name": "character_id",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": "Positive catalog_character.id already on this work's roster.",
+                "constraints": "positive integer",
+                "source": "editspec/work_roster.go:42"
+              },
+              {
+                "name": "kind",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": [0, 1, 2, 3],
+                "enum_meaning": "0=unknown, 1=main, 2=secondary, 3=appears (WorkCharacterKind*). Public v2 roster_role uses those strings.",
+                "constraints": "whole JSON number 0..3",
+                "source": "editspec/work_roster.go:55"
+              },
+              {
+                "name": "spoiler",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": [0, 1, 2],
+                "enum_meaning": "0=none (SpoilerNone), 1=minor (SpoilerMild), 2=major (SpoilerSevere). The error text says minor/major; the constants are Mild/Severe. Public v2 spoiler uses none/minor/major strings.",
+                "constraints": "whole JSON number 0..2",
+                "source": "editspec/work_roster.go:65"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of roster objects", "message": "must be an array of roster objects", "source": "editspec/work_roster.go:31"},
+            {"rule": "at most 500 elements", "message": "must contain at most 500 elements", "source": "editspec/work_roster.go:20"},
+            {"rule": "character_id positive", "message": "element %d: character_id must be a positive id", "source": "editspec/work_roster.go:47"},
+            {"rule": "one row per character_id", "message": "element %d: character_id %d appears twice; each character has at most one roster row, so two elements would be two different values for it", "source": "editspec/work_roster.go:50"},
+            {"rule": "kind 0..3", "message": "element %d: kind must be 0 (unknown), 1 (main), 2 (secondary) or 3 (appears)", "source": "editspec/work_roster.go:63"},
+            {"rule": "spoiler 0..2", "message": "element %d: spoiler must be 0 (none), 1 (minor) or 2 (major)", "source": "editspec/work_roster.go:72"},
+            {"rule": "apply-time: character must already be on this work's roster (this field cannot add one)", "message": "character %s is not on this work's roster: this field edits the appearance of characters upstream already lists, it cannot add one; to hide a row use catalog.work.roster.suppressed", "source": "editspec/work_roster.go:163"}
+          ],
+          "source": "editspec/work.go:192"
+        },
+        {
+          "key": "catalog.work.roster.suppressed",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 500,
+          "max_suppressed": 500,
+          "is_suppression_companion": true,
+          "suppression_parent": "catalog.work.roster",
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 2,
+            "format": "roster:<character_id>",
+            "notes": "Parent MaxSuppressed is 500. Public appearance/character blocks publish an opaque identity string to echo back.",
+            "source": "editspec/work_roster.go:238"
+          },
+          "element": {"shape": "string"},
+          "validation": [
+            {"rule": "array of identity-key strings, at most 500, each ≤512 runes, sorted ascending unique", "message": "must be an array of identity keys / must contain at most 500 identity keys", "source": "editing/suppression.go:91"},
+            {"rule": "format roster:<character_id>", "message": "%q is not an identity key of this field: expected roster:<character_id>", "source": "editspec/work_roster.go:241"},
+            {"rule": "character_id is a canonical decimal integer", "message": "%q is not an identity key of this field: %q is not a canonical id", "source": "editspec/work_roster.go:245"},
+            {"rule": "character_id must be positive", "message": "%q is not an identity key of this field: character_id must be positive", "source": "editspec/work_roster.go:248"}
+          ],
+          "source": "editspec/work.go:283"
+        },
+        {
+          "key": "catalog.work.screenshots",
+          "kind": "list",
+          "diff_hint": "image",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["image_hash", "caption", "sexual", "violence"],
+            "properties": [
+              {
+                "name": "image_hash",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "non-empty after trim; at most 128 runes. Hash is produced by POST /v2/me/edit-images (preset=screenshot).",
+                "source": "editspec/work_media.go:198"
+              },
+              {
+                "name": "caption",
+                "json_type": "string",
+                "required": false,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "omittable; if present a string of at most 500 runes; empty string allowed",
+                "source": "editspec/work_media.go:206"
+              },
+              {
+                "name": "sexual",
+                "json_type": "integer",
+                "required": false,
+                "nullable": false,
+                "enum": [0, 1, 2],
+                "enum_meaning": "0=safe, 1=suggestive, 2=explicit. Absent defaults to 0.",
+                "constraints": "whole JSON number 0..2",
+                "source": "editspec/work_media.go:210"
+              },
+              {
+                "name": "violence",
+                "json_type": "integer",
+                "required": false,
+                "nullable": false,
+                "enum": [0, 1, 2],
+                "enum_meaning": "0/1/2 as for covers. Absent defaults to 0.",
+                "constraints": "whole JSON number 0..2",
+                "source": "editspec/work_media.go:214"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of screenshot objects", "message": "must be an array of screenshot objects", "source": "editspec/work_media.go:187"},
+            {"rule": "at most 200 elements", "message": "must contain at most 200 elements", "source": "editspec/curated.go:119"},
+            {"rule": "image_hash unique within the array", "message": "element %d: duplicate image_hash", "source": "editspec/work_media.go:203"},
+            {"rule": "array order is the written sort_order", "message": null, "source": "editspec/work_media.go:249"},
+            {"rule": "apply-time: image_hash must not already exist on an upstream screenshot for this work", "message": "image %s is already collected upstream for this work; upstream media rows cannot be restyled through the editor yet", "source": "editspec/work_media.go:280"}
+          ],
+          "source": "editspec/work.go:275"
+        },
+        {
+          "key": "catalog.work.series_ids",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "integer"},
+          "validation": [
+            {"rule": "must be an array of series ids", "message": "must be an array of series ids", "source": "editspec/work_edges.go:58"},
+            {"rule": "at most 200 elements; each a positive unique integer id", "message": "element %d: must be an integer id / id must be positive / duplicate id %d", "source": "editspec/work_edges.go:24"},
+            {"rule": "apply-time: every id must be an existing CURATED series (source_id = 12)", "message": "every id must be an existing CURATED series (an upstream series' membership is reconciled by its importer and cannot be edited here)", "source": "editspec/work_edges.go:312"}
+          ],
+          "source": "editspec/work.go:260"
+        },
+        {
+          "key": "catalog.work.tag_ids",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 0,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {"present": false, "segment_count": 0, "format": null, "notes": null, "source": null},
+          "element": {"shape": "integer"},
+          "validation": [
+            {"rule": "must be an array of tag ids", "message": "must be an array of tag ids", "source": "editspec/work_edges.go:56"},
+            {"rule": "at most 200 elements; each a positive unique integer id", "message": "element %d: must be an integer id / id must be positive / duplicate id %d", "source": "editspec/work_edges.go:24"},
+            {"rule": "apply-time: every id must exist on catalog_tag", "message": "%d of %d ids do not exist", "source": "editspec/work_edges.go:75"}
+          ],
+          "source": "editspec/work.go:245"
+        },
+        {
+          "key": "catalog.work.titles",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 100,
+          "max_suppressed": 200,
+          "is_suppression_companion": false,
+          "suppression_parent": null,
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 4,
+            "format": "title:<kind>:<lang>:<text>",
+            "notes": "TrailingText true. kind is decimal; lang carries no colon; text is textnorm.Clean of title. FieldSpec.MaxSuppressed is 0 so the companion inherits the engine default 200, which is larger than max_elements 100.",
+            "source": "editspec/work_titles.go:185"
+          },
+          "element": {
+            "shape": "object",
+            "allowed_keys": ["lang", "title", "latin", "kind"],
+            "properties": [
+              {
+                "name": "lang",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": ["", "ar", "be", "bg", "ca", "cs", "da", "de", "el", "en", "eo", "es", "fi", "fr", "ga", "gd", "he", "hi", "hr", "hu", "id", "it", "iu", "ja", "ko", "la", "lt", "lv", "mk", "ms", "nl", "no", "pl", "pt-br", "pt-pt", "ro", "ru", "sk", "sl", "sr", "sv", "ta", "th", "tr", "uk", "ur", "vi", "zh", "zh-Hans", "zh-Hant"],
+                "enum_meaning": "olangAllowed, plus empty string only when kind=1 (alias). Official and abbreviation titles may not have empty lang. Missing key is reported as 'lang must be a string', not 'lang is required'. Only string type-assert; no objString helper.",
+                "constraints": "must be a JSON string",
+                "source": "editspec/work_titles.go:57"
+              },
+              {
+                "name": "title",
+                "json_type": "string",
+                "required": true,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "must be a string; TrimSpace non-empty; at most 500 runes. Stored untrimmed.",
+                "source": "editspec/work_titles.go:61"
+              },
+              {
+                "name": "kind",
+                "json_type": "integer",
+                "required": true,
+                "nullable": false,
+                "enum": [0, 1, 2],
+                "enum_meaning": "0=official, 1=alias, 2=abbreviation. kind 3 (search hint) is not editable. Only float64 is accepted (int64 is not).",
+                "constraints": "whole JSON number 0..2",
+                "source": "editspec/work_titles.go:71"
+              },
+              {
+                "name": "latin",
+                "json_type": "string",
+                "required": false,
+                "nullable": false,
+                "enum": null,
+                "enum_meaning": null,
+                "constraints": "if present must be a non-empty (after trim) string of at most 500 runes. JSON null is rejected.",
+                "source": "editspec/work_titles.go:97"
+              }
+            ]
+          },
+          "validation": [
+            {"rule": "must be an array of title objects", "message": "must be an array of title objects", "source": "editspec/work_titles.go:34"},
+            {"rule": "at least one title", "message": "must contain at least one title", "source": "editspec/work_titles.go:37"},
+            {"rule": "at most 100 titles (maxTitleElements, not the 200 default)", "message": "must contain at most 100 titles", "source": "editspec/work_titles.go:40"},
+            {"rule": "each element is an object", "message": "element %d: must be an object", "source": "editspec/work_titles.go:48"},
+            {"rule": "only keys lang, title, kind, latin", "message": "element %d: unknown key %q", "source": "editspec/work_titles.go:54"},
+            {"rule": "lang must be a string", "message": "element %d: lang must be a string", "source": "editspec/work_titles.go:59"},
+            {"rule": "title must be a non-empty string ≤500 runes", "message": "element %d: title must be a string / must not be empty / must be at most 500 characters", "source": "editspec/work_titles.go:63"},
+            {"rule": "kind must be a whole JSON number (float64 only)", "message": "element %d: kind must be an integer", "source": "editspec/work_titles.go:73"},
+            {"rule": "kind 0, 1 or 2", "message": "element %d: kind must be 0 (official), 1 (alias) or 2 (abbreviation)", "source": "editspec/work_titles.go:77"},
+            {"rule": "empty lang only for alias (kind 1)", "message": "element %d: only an alias (kind 1) may have an empty lang", "source": "editspec/work_titles.go:91"},
+            {"rule": "non-empty lang must be in olangAllowed", "message": "element %d: %q is not an allowed language", "source": "editspec/work_titles.go:94"},
+            {"rule": "latin if present is a non-empty string ≤500 runes", "message": "element %d: latin must be a non-empty string when present / latin must be at most 500 characters", "source": "editspec/work_titles.go:100"},
+            {"rule": "unique (lang, title, kind)", "message": "element %d: duplicate (lang, title, kind)", "source": "editspec/work_titles.go:108"},
+            {"rule": "at least one official (kind 0) title", "message": "must contain at least one official (kind 0) title", "source": "editspec/work_titles.go:117"}
+          ],
+          "source": "editspec/work.go:163"
+        },
+        {
+          "key": "catalog.work.titles.suppressed",
+          "kind": "list",
+          "diff_hint": "items",
+          "deprecated": false,
+          "json_type": "array",
+          "nullable": false,
+          "max_elements": 200,
+          "max_suppressed": 200,
+          "is_suppression_companion": true,
+          "suppression_parent": "catalog.work.titles",
+          "policy": {
+            "propose": "perm:edit.catalog.work",
+            "review": "perm:edit.catalog.work.review",
+            "automerge": "never",
+            "owner_review": false
+          },
+          "site_overrides": {
+            "kungal": {"propose": "open", "review": "perm:edit.catalog.work.review", "automerge": "review", "owner_review": true},
+            "letmoe": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-staging": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false},
+            "letmoe-dev": {"propose": "trusted", "review": "perm:edit.catalog.work.review", "automerge": "owner", "owner_review": false}
+          },
+          "identity": {
+            "present": true,
+            "segment_count": 4,
+            "format": "title:<kind>:<lang>:<text>",
+            "notes": "Parent MaxSuppressed is 0 so the companion uses editing.maxSuppressedKeys=200. KeyCheck does not restrict kind to 0..2 or lang to olangAllowed; it only requires a numeric int16 kind, a non-empty text segment, and textnorm.Clean canonical form.",
+            "source": "editspec/identity.go:19"
+          },
+          "element": {"shape": "string"},
+          "validation": [
+            {"rule": "array of identity-key strings, at most 200, each ≤512 runes, sorted ascending unique", "message": "must be an array of identity keys / must contain at most 200 identity keys / element %d: identity keys must be sorted ascending and unique", "source": "editing/suppression.go:91"},
+            {"rule": "format title:<kind>:<lang>:<text>", "message": "%q is not an identity key of this field: expected title:<kind>:<lang>:<text>", "source": "editspec/identity.go:23"},
+            {"rule": "kind segment is numeric int16", "message": "%q is not an identity key of this field: %q is not a numeric kind", "source": "editspec/identity.go:26"},
+            {"rule": "text segment non-empty and already textnorm.Clean'd", "message": "%q is not an identity key of this field: the text segment is empty / %q is not the canonical form of this key: the text segment carries invisible or edge whitespace, so it would suppress nothing; send %q instead", "source": "editspec/identity.go:29"}
+          ],
+          "source": "editspec/work.go:233"
+        }
+      ]
+    }
+  ]
+}
