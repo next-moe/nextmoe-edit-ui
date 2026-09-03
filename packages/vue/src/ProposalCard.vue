@@ -10,6 +10,8 @@ const props = defineProps<{
   labelFor: (key: string) => string
   proposer?: EditUser
   decider?: EditUser
+  currentRevisionSeq?: number
+  conflictKeys?: string[]
 }>()
 
 const badge = computed(() => proposalStatusBadge(props.proposal.status))
@@ -17,6 +19,21 @@ const patchKeys = computed(() =>
   Object.keys(props.proposal.effective_patch ?? props.proposal.patch)
 )
 const amendedCount = computed(() => props.proposal.amendments?.length ?? 0)
+
+// Being behind the entity's head is not a conflict on its own — the engine only
+// refuses the merge for fields that both drifted and are in this patch. Two
+// different states, two different colours, or every stale proposal reads as
+// broken.
+const conflicts = computed(() =>
+  (props.conflictKeys ?? []).filter((key) => patchKeys.value.includes(key))
+)
+
+const isStale = computed(
+  () =>
+    props.proposal.status === 'open' &&
+    props.currentRevisionSeq !== undefined &&
+    props.currentRevisionSeq > props.proposal.base_revision_seq
+)
 </script>
 
 <template>
@@ -48,11 +65,28 @@ const amendedCount = computed(() => props.proposal.amendments?.length ?? 0)
         :key="key"
         size="sm"
         variant="flat"
-        color="default"
+        :color="conflicts.includes(key) ? 'danger' : 'default'"
       >
         {{ labelFor(key) }}
       </KunChip>
     </div>
+
+    <KunInfo
+      v-if="conflicts.length"
+      color="danger"
+      variant="flat"
+      icon="lucide:git-pull-request-closed"
+      title="存在冲突，合并会被拒绝"
+      :description="`${conflicts.map(labelFor).join('、')} 在本提案之后被他人改动。需要提案人基于最新版本重新提交，或由审核人用修正覆盖。`"
+    />
+    <KunInfo
+      v-else-if="isStale"
+      color="warning"
+      variant="flat"
+      icon="lucide:history"
+      :title="`基于第 ${proposal.base_revision_seq} 版，当前已是第 ${currentRevisionSeq} 版`"
+      description="改动的字段没有被他人碰过，仍可正常合并。"
+    />
 
     <p v-if="proposal.note" class="text-default-500 text-sm">
       {{ proposal.note }}

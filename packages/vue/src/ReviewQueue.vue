@@ -10,6 +10,8 @@ const props = defineProps<{
   users?: Record<number, EditUser>
   labelFor: (key: string) => string
   loading?: boolean
+  currentRevisionSeqFor?: (proposal: EditProposal) => number | undefined
+  conflictKeysFor?: (proposal: EditProposal) => string[] | undefined
 }>()
 
 const status = defineModel<string>('status', { default: 'open' })
@@ -49,6 +51,8 @@ const userOf = computed(() => (uid?: number) => {
             :label-for="labelFor"
             :proposer="userOf(proposal.proposer_uid)"
             :decider="userOf(proposal.decided_by_uid)"
+            :current-revision-seq="currentRevisionSeqFor?.(proposal)"
+            :conflict-keys="conflictKeysFor?.(proposal)"
           />
         </slot>
       </template>
