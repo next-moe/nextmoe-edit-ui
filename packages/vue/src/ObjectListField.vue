@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { KunButton, KunIcon } from '@kungal/ui-vue'
+import { KunButton, KunChip, KunIcon } from '@kungal/ui-vue'
 import {
   blankEditRow,
   buildEditRow,
@@ -142,6 +142,15 @@ const removeRow = (index: number) => {
           @update:model-value="(value) => setCell(row, col.key, value)"
         />
       </div>
+      <KunChip
+        v-if="rowSuppressed(row)"
+        size="sm"
+        variant="flat"
+        color="warning"
+        class="shrink-0"
+      >
+        已隐藏
+      </KunChip>
       <KunButton
         v-if="identityKey && keyOf(row)"
         :is-icon-only="true"

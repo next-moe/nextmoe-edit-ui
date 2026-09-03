@@ -70,6 +70,15 @@ describe('workRosterIdentityKey', () => {
   })
 })
 
+describe('workTitleIdentityKey — an alias with no language', () => {
+  it('keeps the empty segment when the wire payload dropped the blank lang', () => {
+    expect(workTitleIdentityKey({ kind: 2, title: 'Higu' })).toBe('title:2::Higu')
+    expect(workTitleIdentityKey({ kind: 2, lang: '', title: 'Higu' })).toBe(
+      'title:2::Higu'
+    )
+  })
+})
+
 describe('workCreditIdentityKey', () => {
   it('builds credit:<role_id>:<credit_name_id>:<character_id>', () => {
     expect(

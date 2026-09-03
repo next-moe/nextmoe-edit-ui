@@ -58,6 +58,7 @@ export const DOCS_NAV: DocsNavGroup[] = [
   {
     title: '在线演示',
     items: [
+      { to: '/demo/catalog', label: '真实 schema' },
       { to: '/demo/form', label: '编辑表单' },
       { to: '/demo/diff', label: '字段差异' },
       { to: '/demo/review', label: '审核与历史' }

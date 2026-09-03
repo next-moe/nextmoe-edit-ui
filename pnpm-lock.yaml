@@ -23,6 +23,9 @@ importers:
       '@kungal/ui-vue':
         specifier: ^2.26.2
         version: 2.26.2(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
+      '@nextmoe/edit-ui-catalog':
+        specifier: workspace:*
+        version: link:../../packages/catalog
       '@nextmoe/edit-ui-core':
         specifier: workspace:*
         version: link:../../packages/core

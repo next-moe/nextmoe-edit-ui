@@ -17,7 +17,12 @@ export const workTitleIdentityKey = (item: unknown): string | null => {
   if (kind === null) {
     return null
   }
-  if (typeof row.lang !== 'string') {
+  // An alias may carry no language, and the row that reaches here has had every
+  // blank optional key dropped for the wire payload — but the column is NOT NULL
+  // and stores "", so the key keeps an empty segment. Rejecting the missing lang
+  // left exactly those rows with no key, hence no suppression toggle at all.
+  const lang = row.lang === undefined ? '' : row.lang
+  if (typeof lang !== 'string') {
     return null
   }
   if (typeof row.title !== 'string') {
@@ -27,7 +32,7 @@ export const workTitleIdentityKey = (item: unknown): string | null => {
   if (text === '') {
     return null
   }
-  return `title:${kind}:${row.lang}:${text}`
+  return `title:${kind}:${lang}:${text}`
 }
 
 export const characterAliasIdentityKey = (item: unknown): string | null => {

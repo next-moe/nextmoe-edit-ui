@@ -68,7 +68,7 @@ export const fields: EditSchemaField[] = [
   field('play_minutes', 'int'),
   field('intro', 'text', 'lines'),
   field('status', 'enum'),
-  field('nsfw', 'bool'),
+  field('nsfw', 'enum'),
   field('release_date', 'date'),
   field('aliases', 'list', 'items'),
   field('tag_ids', 'list', 'items'),
