@@ -73,6 +73,9 @@ const setCell = (row: ObjectRow, key: string, value: unknown) => {
   emitRows()
 }
 
+const canAdd = computed(() => props.config?.allowAdd !== false)
+const canRemove = computed(() => props.config?.allowRemove !== false)
+
 const atCap = computed(
   () => typeof props.max === 'number' && props.max > 0 && rows.value.length >= props.max
 )
@@ -153,6 +156,7 @@ const removeRow = (index: number) => {
         <KunIcon :name="rowSuppressed(row) ? 'lucide:eye-off' : 'lucide:eye'" />
       </KunButton>
       <KunButton
+        v-if="canRemove"
         :is-icon-only="true"
         variant="light"
         color="danger"
@@ -167,8 +171,9 @@ const removeRow = (index: number) => {
 
     <p v-if="!rows.length" class="text-default-400 text-sm">暂无条目</p>
 
-    <div class="flex items-center gap-3">
+    <div v-if="canAdd || max" class="flex items-center gap-3">
       <KunButton
+        v-if="canAdd"
         variant="flat"
         color="default"
         size="sm"

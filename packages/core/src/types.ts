@@ -80,6 +80,11 @@ export interface EditFieldConfig<TComponent = unknown> {
   nullable?: boolean
   columns?: EditObjectColumn[]
   itemColumns?: EditObjectColumn[]
+  // Not every list accepts new or removed rows: applyRoster holds no INSERT and
+  // no DELETE, so a roster row added in the form is refused at merge with "is
+  // not on this work's roster". Offering the button anyway is a trap.
+  allowAdd?: boolean
+  allowRemove?: boolean
   newRow?: () => Record<string, unknown>
   formatValue?: (value: unknown) => string
   formatItem?: (item: unknown) => string
