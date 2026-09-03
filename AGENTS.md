@@ -89,6 +89,7 @@ probably load-bearing there.
 
 `packages/catalog/schema/inventory.json` is a census of the catalog editing engine
 in `nextmoe-infra` — 50 field keys over 7 entity types, with element shapes, enum
-vocabularies, identity formats and caps — taken at `w161-hotfix` / `3454161d`. It is a test
-fixture, not shipped code, and the completeness suite drives its loops from it: a
-field the engine adds fails the suite instead of silently having no preset. Re-take it when the engine changes; do not hand-edit it.
+vocabularies, identity formats and caps — taken at `w161-hotfix` / `3454161d`. It
+is a test fixture, not shipped code, and the completeness suite drives its loops
+from it: a field the engine adds fails the suite instead of silently having no
+preset. Re-take it when the engine changes; do not hand-edit it.
