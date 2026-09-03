@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { KunBadge, KunTab } from '@kungal/ui-vue'
+import { KunBadge, KunInfo, KunTab } from '@kungal/ui-vue'
 import { cloneEditValue, editValueEqual } from '@nextmoe/edit-ui-core'
 import SchemaField from './SchemaField.vue'
+import { useUnsavedGuard } from './useUnsavedGuard'
 import type { EditFieldConfigMap, EditSchemaField } from './types'
 
 const props = withDefaults(
@@ -15,8 +16,10 @@ const props = withDefaults(
     layout?: 'stack' | 'tabs'
     tabbedGroups?: string[]
     errors?: Record<string, string[]>
+    formErrors?: string[]
+    warnOnLeave?: boolean
   }>(),
-  { layout: 'stack' }
+  { layout: 'stack', warnOnLeave: true }
 )
 
 const emit = defineEmits<{
@@ -54,7 +57,16 @@ const patch = computed<Record<string, unknown>>(() => {
 watch(patch, (value) => emit('update:patch', value), { deep: false })
 
 const dirtyCount = computed(() => Object.keys(patch.value).length)
-defineExpose({ dirtyCount })
+
+const reset = () => {
+  for (const field of props.fields) {
+    working[field.key] = cloneEditValue(props.values[field.key])
+  }
+}
+
+useUnsavedGuard(computed(() => props.warnOnLeave && dirtyCount.value > 0))
+
+defineExpose({ dirtyCount, reset })
 
 const UNGROUPED = '__ungrouped'
 const SUPPRESSED_SUFFIX = '.suppressed'
@@ -171,6 +183,17 @@ watch(
   { immediate: true }
 )
 
+const fieldProps = (field: EditSchemaField) => ({
+  field,
+  config: props.config[field.key],
+  baseline: props.values[field.key],
+  suppressed: pairsSuppressed(field.key)
+    ? working[companionKey(field.key)]
+    : undefined,
+  errors: props.errors?.[field.key],
+  disabled: props.disabled
+})
+
 const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
   section.fields.map((field) => ({
     value: field.key,
@@ -183,126 +206,110 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
 </script>
 
 <template>
-  <div
-    v-if="layout === 'tabs'"
-    class="flex flex-col gap-4 md:flex-row md:gap-6"
-  >
-    <KunTab
-      v-for="nav in groupNavs"
-      :key="nav.name"
-      v-model="active"
-      :items="tabItems"
-      :orientation="nav.orientation"
-      :name="nav.name"
-      :class-name="nav.className"
-      variant="pills"
-      color="primary"
-      size="md"
+  <div class="space-y-4">
+    <KunInfo
+      v-if="formErrors?.length"
+      color="danger"
+      variant="flat"
+      icon="lucide:circle-alert"
+      title="提交被拒绝"
+      :description="formErrors.join('；')"
+    />
+
+    <div
+      v-if="layout === 'tabs'"
+      class="flex flex-col gap-4 md:flex-row md:gap-6"
     >
-      <template #tab="{ item }">
-        {{ item.textValue }}
-        <KunBadge
-          v-if="item.count"
-          variant="count"
-          :count="item.count"
-          color="danger"
-          size="sm"
-        />
-      </template>
-    </KunTab>
-    <div class="min-w-0 flex-1">
-      <section
-        v-for="section in sections"
-        v-show="tabKey(section.name) === active"
-        :key="section.name"
-        class="grid grid-cols-1 gap-5"
+      <KunTab
+        v-for="nav in groupNavs"
+        :key="nav.name"
+        v-model="active"
+        :items="tabItems"
+        :orientation="nav.orientation"
+        :name="nav.name"
+        :class-name="nav.className"
+        variant="pills"
+        color="primary"
+        size="md"
       >
-        <template v-if="isTabbedGroup(section.name)">
-          <KunTab
-            :model-value="activeField[section.name] ?? ''"
-            :items="subTabItems(section)"
-            orientation="horizontal"
-            variant="underlined"
-            color="primary"
+        <template #tab="{ item }">
+          {{ item.textValue }}
+          <KunBadge
+            v-if="item.count"
+            variant="count"
+            :count="item.count"
+            color="danger"
             size="sm"
-            @update:model-value="(value) => (activeField[section.name] = value)"
-          >
-            <template #tab="{ item }">
-              {{ item.textValue }}
-              <KunBadge
-                v-if="item.dirty"
-                variant="dot"
-                color="danger"
-                size="sm"
-              />
-            </template>
-          </KunTab>
-          <SchemaField
-            v-for="field in section.fields"
-            v-show="field.key === activeField[section.name]"
-            :key="field.key"
-            v-model="working[field.key]"
-            :field="field"
-            :config="config[field.key]"
-            :baseline="values[field.key]"
-            :suppressed="
-              pairsSuppressed(field.key)
-                ? working[companionKey(field.key)]
-                : undefined
-            "
-            :errors="errors?.[field.key]"
-            :disabled="disabled"
-            @update:suppressed="(value) => setSuppressed(field.key, value)"
           />
         </template>
-        <template v-else>
+      </KunTab>
+      <div class="min-w-0 flex-1">
+        <section
+          v-for="section in sections"
+          v-show="tabKey(section.name) === active"
+          :key="section.name"
+          class="grid grid-cols-1 gap-5"
+        >
+          <template v-if="isTabbedGroup(section.name)">
+            <KunTab
+              :model-value="activeField[section.name] ?? ''"
+              :items="subTabItems(section)"
+              orientation="horizontal"
+              variant="underlined"
+              color="primary"
+              size="sm"
+              @update:model-value="(value) => (activeField[section.name] = value)"
+            >
+              <template #tab="{ item }">
+                {{ item.textValue }}
+                <KunBadge
+                  v-if="item.dirty"
+                  variant="dot"
+                  color="danger"
+                  size="sm"
+                />
+              </template>
+            </KunTab>
+            <SchemaField
+              v-for="field in section.fields"
+              v-show="field.key === activeField[section.name]"
+              :key="field.key"
+              v-model="working[field.key]"
+              v-bind="fieldProps(field)"
+              @update:suppressed="(value) => setSuppressed(field.key, value)"
+            />
+          </template>
+          <template v-else>
+            <SchemaField
+              v-for="field in section.fields"
+              :key="field.key"
+              v-model="working[field.key]"
+              v-bind="fieldProps(field)"
+              @update:suppressed="(value) => setSuppressed(field.key, value)"
+            />
+          </template>
+        </section>
+      </div>
+    </div>
+
+    <div v-else class="space-y-6">
+      <section v-for="section in sections" :key="section.name" class="space-y-3">
+        <h3
+          v-if="section.name"
+          class="text-default-900 border-b pb-1 text-base font-semibold"
+        >
+          {{ section.name }}
+        </h3>
+        <div class="grid grid-cols-1 gap-4">
           <SchemaField
             v-for="field in section.fields"
             :key="field.key"
             v-model="working[field.key]"
-            :field="field"
-            :config="config[field.key]"
-            :baseline="values[field.key]"
-            :suppressed="
-              pairsSuppressed(field.key)
-                ? working[companionKey(field.key)]
-                : undefined
-            "
-            :errors="errors?.[field.key]"
-            :disabled="disabled"
+            v-bind="fieldProps(field)"
             @update:suppressed="(value) => setSuppressed(field.key, value)"
           />
-        </template>
+        </div>
       </section>
     </div>
-  </div>
-
-  <div v-else class="space-y-6">
-    <section v-for="section in sections" :key="section.name" class="space-y-3">
-      <h3
-        v-if="section.name"
-        class="text-default-900 border-b pb-1 text-base font-semibold"
-      >
-        {{ section.name }}
-      </h3>
-      <div class="grid grid-cols-1 gap-4">
-        <SchemaField
-          v-for="field in section.fields"
-          :key="field.key"
-          v-model="working[field.key]"
-          :field="field"
-          :config="config[field.key]"
-          :baseline="values[field.key]"
-          :suppressed="
-            pairsSuppressed(field.key)
-              ? working[companionKey(field.key)]
-              : undefined
-          "
-          :errors="errors?.[field.key]"
-          :disabled="disabled"
-          @update:suppressed="(value) => setSuppressed(field.key, value)"
-        />
-      </div>
-    </section>
   </div>
 </template>
