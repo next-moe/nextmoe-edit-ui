@@ -4,6 +4,7 @@ export { default as FieldDiff } from './FieldDiff.vue'
 export { default as FieldReadonly } from './FieldReadonly.vue'
 export { default as ImageDiff } from './ImageDiff.vue'
 export { default as ImageField } from './ImageField.vue'
+export { default as ImageItemEditor } from './ImageItemEditor.vue'
 export { default as ObjectListCell } from './ObjectListCell.vue'
 export { default as ObjectListField } from './ObjectListField.vue'
 export { default as ProposalCard } from './ProposalCard.vue'
@@ -24,6 +25,7 @@ export const EDIT_UI_COMPONENT_NAMES = [
   'FieldReadonly',
   'ImageDiff',
   'ImageField',
+  'ImageItemEditor',
   'ObjectListCell',
   'ObjectListField',
   'ProposalCard',
@@ -45,6 +47,7 @@ export {
   blankEditRow,
   buildEditRow,
   buildEditRows,
+  summarizeColumns,
   cloneEditValue,
   diffItems,
   diffTextSegments,
@@ -66,6 +69,7 @@ export {
 } from '@nextmoe/edit-ui-core'
 export type {
   EditAmendment,
+  EditColumnSummary,
   EditColumnType,
   EditContextItem,
   EditControl,

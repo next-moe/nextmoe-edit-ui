@@ -2,8 +2,9 @@
 import { computed, ref, watch } from 'vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { KunButton, KunChip, KunIcon } from '@kungal/ui-vue'
-import { editValueEqual } from '@nextmoe/edit-ui-core'
-import type { EditFieldConfig } from './types'
+import { editValueEqual, summarizeColumns } from '@nextmoe/edit-ui-core'
+import ImageItemEditor from './ImageItemEditor.vue'
+import type { EditFieldConfig, EditObjectColumn } from './types'
 
 const props = defineProps<{
   modelValue: unknown
@@ -101,6 +102,28 @@ useSortable(gridRef, sortItems, {
   draggable: '.ek-image-item'
 })
 
+const itemColumns = computed<EditObjectColumn[]>(
+  () => props.config?.itemColumns ?? []
+)
+
+const activeIndex = ref<number | null>(null)
+const toggleEditor = (index: number) => {
+  activeIndex.value = activeIndex.value === index ? null : index
+}
+watch(items, () => {
+  if (activeIndex.value !== null && activeIndex.value >= items.value.length) {
+    activeIndex.value = null
+  }
+})
+
+const setItem = (index: number, value: unknown) => {
+  emitItems(sortItems.value.map((item, i) => (i === index ? value : item)))
+}
+
+// Metadata a viewer cannot see is metadata nobody maintains: without a badge on
+// the tile the safety flags look unset even when they are set.
+const itemBadges = (item: unknown) => summarizeColumns(item, itemColumns.value)
+
 const pinItemKey = computed(() => props.config?.pinItemFlag?.key)
 
 const isPinnedItem = (item: unknown) => {
@@ -155,7 +178,32 @@ const pinItem = (index: number) => {
           >
             {{ config.pinItemFlag.label }}
           </KunChip>
+          <div
+            v-if="itemBadges(item).length"
+            class="pointer-events-none absolute right-1 bottom-1 flex flex-wrap justify-end gap-1"
+          >
+            <KunChip
+              v-for="badge in itemBadges(item)"
+              :key="badge.key"
+              color="default"
+              variant="solid"
+              size="sm"
+            >
+              {{ badge.text }}
+            </KunChip>
+          </div>
           <div class="absolute top-1 right-1 flex gap-1">
+            <KunButton
+              v-if="itemColumns.length"
+              :is-icon-only="true"
+              size="sm"
+              variant="solid"
+              :color="activeIndex === index ? 'primary' : 'default'"
+              title="编辑属性"
+              @click="toggleEditor(index)"
+            >
+              <KunIcon name="lucide:pencil" />
+            </KunButton>
             <KunButton
               v-if="config?.pinItemFlag && !isPinnedItem(item)"
               :is-icon-only="true"
@@ -180,6 +228,14 @@ const pinItem = (index: number) => {
           </div>
         </div>
       </div>
+      <ImageItemEditor
+        v-if="activeIndex !== null && itemColumns.length"
+        :model-value="sortItems[activeIndex]"
+        :columns="itemColumns"
+        :preview-url="resolveImageURL(sortItems[activeIndex])"
+        @update:model-value="(value) => setItem(activeIndex!, value)"
+        @close="activeIndex = null"
+      />
       <button
         type="button"
         class="border-default-200 text-default-400 hover:border-primary hover:text-primary flex w-full cursor-pointer items-center justify-center gap-1 rounded border border-dashed py-3 text-sm"

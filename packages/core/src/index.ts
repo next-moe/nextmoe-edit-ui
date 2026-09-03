@@ -43,5 +43,10 @@ export type {
 export { guardEditControl, listShape, overElementCap } from './shape'
 export type { EditListShape, GuardedEditControl } from './shape'
 
-export { blankEditRow, buildEditRow, buildEditRows } from './row'
-export type { EditRowIssue, EditRowResult } from './row'
+export {
+  blankEditRow,
+  buildEditRow,
+  buildEditRows,
+  summarizeColumns
+} from './row'
+export type { EditColumnSummary, EditRowIssue, EditRowResult } from './row'

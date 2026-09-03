@@ -13,6 +13,7 @@ export type EditFieldConfigMap = Record<string, EditFieldConfig>
 export type {
   EditAmendment,
   EditContextItem,
+  EditColumnSummary,
   EditColumnType,
   EditControl,
   EditListShape,

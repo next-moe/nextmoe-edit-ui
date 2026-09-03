@@ -131,3 +131,32 @@ export const blankEditRow = (
   }
   return row
 }
+
+export interface EditColumnSummary {
+  key: string
+  text: string
+}
+
+export const summarizeColumns = (
+  item: unknown,
+  columns: EditObjectColumn[]
+): EditColumnSummary[] => {
+  const row = (item ?? {}) as Record<string, unknown>
+  const out: EditColumnSummary[] = []
+  for (const column of columns) {
+    const value = row[column.key]
+    if (value === null || value === undefined || value === '' || value === false) {
+      continue
+    }
+    const option = column.options?.find((o) => o.value === value)
+    out.push({
+      key: column.key,
+      text: option
+        ? option.label
+        : value === true
+          ? column.label
+          : String(value)
+    })
+  }
+  return out
+}

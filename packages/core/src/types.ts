@@ -79,6 +79,7 @@ export interface EditFieldConfig<TComponent = unknown> {
   placeholder?: string
   nullable?: boolean
   columns?: EditObjectColumn[]
+  itemColumns?: EditObjectColumn[]
   newRow?: () => Record<string, unknown>
   formatValue?: (value: unknown) => string
   formatItem?: (item: unknown) => string
