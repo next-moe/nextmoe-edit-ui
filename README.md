@@ -13,7 +13,7 @@ and [KunEditor](https://github.com/kungal/kun-editor) (`@kungal/editor-*`). It
 | Package                  | What it is                                                                                    |
 | ------------------------ | --------------------------------------------------------------------------------------------- |
 | `@nextmoe/edit-ui-core`  | Framework-free TypeScript: the wire/schema types + the pure diff, formatting and badge helpers. No Vue anywhere in its dependency closure. |
-| `@nextmoe/edit-ui-vue`   | The Vue 3 components. Peer deps: `vue ^3.5`, `@kungal/ui-vue ^2`.                              |
+| `@nextmoe/edit-ui-vue`   | The Vue 3 components. Peer deps: `vue ^3.5`, `@kungal/ui-vue ^2.26.2`.                              |
 | `@nextmoe/edit-ui-nuxt`  | A Nuxt module that auto-imports the components under a configurable prefix (default `Edit`).   |
 
 `apps/playground` is that site: a private Nuxt app — a landing page plus a

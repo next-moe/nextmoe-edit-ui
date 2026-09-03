@@ -42,7 +42,7 @@
     "@nuxt/kit": "^4.4.7"
   },
   "peerDependencies": {
-    "@kungal/ui-vue": "^2",
+    "@kungal/ui-vue": "^2.26.2",
     "nuxt": "^4.0.0",
     "vue": "^3.5.0"
   },

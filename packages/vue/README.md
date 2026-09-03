@@ -8,7 +8,7 @@ CSS of its own.
 
 ```bash
 pnpm add @nextmoe/edit-ui-vue @nextmoe/edit-ui-core
-# peers: vue ^3.5, @kungal/ui-vue ^2
+# peers: vue ^3.5, @kungal/ui-vue ^2.26.2
 ```
 
 In a Nuxt app, prefer `@nextmoe/edit-ui-nuxt`, which auto-imports all of these

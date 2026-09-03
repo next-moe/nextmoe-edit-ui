@@ -47,25 +47,15 @@ const templateSample = `<EditSchemaForm
 
 <template>
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-    <!-- Client-only for the same KunUI hydration reason as demo/Full.vue. -->
-    <ClientOnly>
-      <KunCard :is-transparent="false" content-class="space-y-3">
-        <EditSchemaForm
-          :fields="fields"
-          :values="values"
-          :config="config"
-          @update:patch="(value) => (patch = value)"
-        />
-        <p class="text-default-400 text-xs">
-          已改动 {{ Object.keys(patch).length }} 个字段
-        </p>
-      </KunCard>
-      <template #fallback>
-        <KunCard :is-transparent="false">
-          <KunSkeleton variant="rect" height="16rem" />
-        </KunCard>
-      </template>
-    </ClientOnly>
+    <KunCard :is-transparent="false" content-class="space-y-3">
+      <EditSchemaForm
+        :fields="fields"
+        :values="values"
+        :config="config"
+        @update:patch="(value) => (patch = value)"
+      />
+      <p class="text-default-400 text-xs">已改动 {{ Object.keys(patch).length }} 个字段</p>
+    </KunCard>
     <div class="space-y-3">
       <SiteCodeBlock :code="scriptSample" label="script" />
       <SiteCodeBlock :code="templateSample" label="template" />

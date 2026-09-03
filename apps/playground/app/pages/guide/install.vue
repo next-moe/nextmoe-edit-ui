@@ -24,12 +24,12 @@ const peers = [
   ],
   [
     '@nextmoe/edit-ui-vue',
-    'vue ^3.5.0 · @kungal/ui-vue ^2',
+    'vue ^3.5.0 · @kungal/ui-vue ^2.26.2',
     '另外以普通依赖引入 @vueuse/core、@vueuse/integrations 与 sortablejs。'
   ],
   [
     '@nextmoe/edit-ui-nuxt',
-    'vue ^3.5.0 · nuxt ^4.0.0 · @kungal/ui-vue ^2',
+    'vue ^3.5.0 · nuxt ^4.0.0 · @kungal/ui-vue ^2.26.2',
     '交给 Nuxt 的 jiti 直接加载原始 TS，没有构建产物。'
   ]
 ]
@@ -62,6 +62,14 @@ const peers = [
       :head="['包', 'peer 依赖', '说明']"
       :rows="peers"
       :mono="[0, 1]"
+    />
+
+    <KunInfo
+      color="warning"
+      variant="flat"
+      icon="lucide:triangle-alert"
+      title="KunUI 的下限是 2.26.2，不是 ^2"
+      description="低于这个版本有两个会真实咬到人的上游 bug：2.25.0 之前 KunDatePicker 在 SSR 下必然 hydration mismatch（日期字段一出现整页就是 mismatch），2.26.2 之前输入法组合期的回车会被 KunAutocomplete / 可搜索的 KunSelect 抢走——中文输入下，在实体选择器里打拼音按回车确认候选词，回车会变成「选中当前高亮项」。两处都在 KunUI 侧修好了，这里只是把下限写进 peer 范围。"
     />
   </SiteSection>
 

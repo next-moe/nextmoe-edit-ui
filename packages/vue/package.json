@@ -55,11 +55,11 @@
     "sortablejs": "^1.15.7"
   },
   "peerDependencies": {
-    "@kungal/ui-vue": "^2",
+    "@kungal/ui-vue": "^2.26.2",
     "vue": "^3.5.0"
   },
   "devDependencies": {
-    "@kungal/ui-vue": "^2.24.0",
+    "@kungal/ui-vue": "^2.26.2",
     "@types/node": "^22.10.0",
     "@types/sortablejs": "^1.15.9",
     "@vitejs/plugin-vue": "^6.0.7",
