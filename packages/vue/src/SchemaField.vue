@@ -252,8 +252,11 @@ const selectValue = computed(() => props.modelValue as string | number | null)
         :model-value="modelValue"
         :config="config"
         :max="field.max_elements"
+        :suppressed="suppressed"
+        :identity-key="config?.identityKey"
         @update:model-value="(value) => emit('update:modelValue', value)"
         @update:issues="(value) => (rowIssues = value)"
+        @update:suppressed="(value) => emit('update:suppressed', value)"
       />
       <ImageField
         v-else-if="control === 'image' || control === 'image-list'"

@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { KunButton, KunIcon } from '@kungal/ui-vue'
-import { blankEditRow, buildEditRows } from '@nextmoe/edit-ui-core'
+import {
+  blankEditRow,
+  buildEditRow,
+  buildEditRows,
+  isSuppressed,
+  toggleSuppressedKey
+} from '@nextmoe/edit-ui-core'
 import ObjectListCell from './ObjectListCell.vue'
 import type { EditFieldConfig, EditObjectColumn, EditRowIssue } from './types'
 
@@ -12,11 +18,14 @@ const props = defineProps<{
   config?: EditFieldConfig
   disabled?: boolean
   max?: number
+  suppressed?: unknown
+  identityKey?: (item: unknown) => string | null
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: unknown]
   'update:issues': [issues: (EditRowIssue & { index: number })[]]
+  'update:suppressed': [value: string[]]
 }>()
 
 const columns = computed<EditObjectColumn[]>(() => props.config?.columns ?? [])
@@ -68,6 +77,20 @@ const atCap = computed(
   () => typeof props.max === 'number' && props.max > 0 && rows.value.length >= props.max
 )
 
+// The key has to be derived from the payload the server would see, not from the
+// editing row: that one still carries the local row id.
+const keyOf = (row: ObjectRow) =>
+  props.identityKey
+    ? props.identityKey(buildEditRow(row, columns.value).row)
+    : null
+
+const rowSuppressed = (row: ObjectRow) =>
+  isSuppressed(props.suppressed, keyOf(row))
+
+const toggleSuppressed = (row: ObjectRow) => {
+  emit('update:suppressed', toggleSuppressedKey(props.suppressed, keyOf(row)))
+}
+
 const addRow = () => {
   rows.value.push(
     withId({ ...blankEditRow(columns.value), ...(props.config?.newRow?.() ?? {}) })
@@ -101,6 +124,7 @@ const removeRow = (index: number) => {
       v-for="(row, index) in rows"
       :key="String(row[ROW_ID])"
       class="flex flex-col items-start gap-2 md:flex-row"
+      :class="{ 'opacity-50': rowSuppressed(row) }"
     >
       <div
         v-for="col in columns"
@@ -110,11 +134,24 @@ const removeRow = (index: number) => {
         <ObjectListCell
           :column="col"
           :model-value="row[col.key]"
-          :disabled="disabled"
+          :disabled="disabled || rowSuppressed(row)"
           :error="issueFor(index, col.key)"
           @update:model-value="(value) => setCell(row, col.key, value)"
         />
       </div>
+      <KunButton
+        v-if="identityKey && keyOf(row)"
+        :is-icon-only="true"
+        variant="light"
+        :color="rowSuppressed(row) ? 'warning' : 'default'"
+        size="sm"
+        :disabled="disabled"
+        :title="rowSuppressed(row) ? '恢复显示' : '在本站隐藏这一条'"
+        :aria-label="rowSuppressed(row) ? '恢复显示' : '在本站隐藏这一条'"
+        @click="toggleSuppressed(row)"
+      >
+        <KunIcon :name="rowSuppressed(row) ? 'lucide:eye-off' : 'lucide:eye'" />
+      </KunButton>
       <KunButton
         :is-icon-only="true"
         variant="light"

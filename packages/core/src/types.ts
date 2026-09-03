@@ -100,6 +100,10 @@ export interface EditFieldConfig<TComponent = unknown> {
   contextNote?: string
   contextItems?: (value: unknown) => EditContextItem[]
   pairsSuppressed?: boolean
+  // The identity-key format is the server's, not this package's — `title:<kind>
+  // :<lang>:<cleaned text>` for work titles, `roster:<character_id>` for the
+  // roster — so the site supplies it. Return null for a row that has no key yet.
+  identityKey?: (item: unknown) => string | null
 }
 
 export type EditFieldConfigMap<TComponent = unknown> = Record<

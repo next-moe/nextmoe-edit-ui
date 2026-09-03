@@ -50,3 +50,11 @@ export {
   summarizeColumns
 } from './row'
 export type { EditColumnSummary, EditRowIssue, EditRowResult } from './row'
+
+export {
+  cleanEditText,
+  compareIdentityKeys,
+  isSuppressed,
+  normalizeSuppressedKeys,
+  toggleSuppressedKey
+} from './suppression'

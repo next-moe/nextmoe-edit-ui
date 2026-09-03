@@ -59,8 +59,13 @@ defineExpose({ dirtyCount })
 const UNGROUPED = '__ungrouped'
 const SUPPRESSED_SUFFIX = '.suppressed'
 
+// A configured identityKey is itself the pairing signal: it is the only way the
+// row editor can render a suppression toggle, and leaving the companion as a
+// separate field then asks the user to hand-type identity keys next to a UI
+// that already writes them.
 const pairsSuppressed = (key: string) =>
-  props.config[key]?.pairsSuppressed === true
+  props.config[key]?.pairsSuppressed === true ||
+  typeof props.config[key]?.identityKey === 'function'
 
 const companionKey = (key: string) => key + SUPPRESSED_SUFFIX
 
