@@ -28,6 +28,19 @@
 - The components take **no backend knowledge**. Anything that would call an API is
   an injected function on `EditFieldConfig` (`uploadImage`, `resolveImage`,
   `searchEntities`, `resolveEntities`) supplied by the consuming site.
+- `@nextmoe/edit-ui-catalog` is the one place that names catalog fields, and it does
+  not break the rule above: it is a config table, not a client. It still injects
+  nothing and calls nothing. It exists because the schema endpoint reports only
+  key/kind/diff_hint/caps — never an element shape, an enum vocabulary or
+  nullability — so without it every site rediscovers all fifty fields by hand and
+  gets a 422 for each one it guesses wrong. Do not "restore layering" by deleting it.
+- A `list` field's element shape is **not derivable from the schema**: `list` +
+  `items` covers both `["https://…"]` and `[{lang, title, latin, kind}]`. Never add
+  a static mapping that assumes one; `guardEditControl` decides from the value, and
+  a scalar list editor handed object rows degrades to read-only.
+- The engine wants **integers** where the public read API publishes strings
+  (`content_rating`, `gender`, `release.kind`). An option table built from the public
+  vocabulary is a 422 on every submit.
 - Unknown `control` / `kind` values must degrade to a read-only display and never
   throw. Adding a control means adding it to `EDIT_CONTROLS` in the core package;
   the `EditControl` union is derived from that array so the two cannot drift.
@@ -57,9 +70,10 @@ never removed.
 ## Layout
 
 ```
-packages/core      @nextmoe/edit-ui-core   framework-free TS (tsup → esm + cjs + d.ts)
-packages/vue       @nextmoe/edit-ui-vue    .vue components (vite lib + vue-tsc d.ts)
-packages/nuxt      @nextmoe/edit-ui-nuxt   Nuxt module, raw TS, no build step
+packages/core      @nextmoe/edit-ui-core     framework-free TS (tsup → esm + cjs + d.ts)
+packages/vue       @nextmoe/edit-ui-vue      .vue components (vite lib + vue-tsc d.ts)
+packages/nuxt      @nextmoe/edit-ui-nuxt     Nuxt module, raw TS, no build step
+packages/catalog   @nextmoe/edit-ui-catalog  field presets for the catalog editing API
 apps/playground    private Nuxt app, fixture-schema driven
 ```
 
@@ -72,3 +86,9 @@ These components were extracted from kun-galgame-forum's `editkit` family
 (`apps/web/app/components/editkit/`) at commit `f099ad0b`. Behaviour is
 deliberately preserved; when in doubt about an odd-looking construct, it is
 probably load-bearing there.
+
+`packages/catalog/schema/inventory.json` is a census of the catalog editing engine
+in `nextmoe-infra` — 50 field keys over 7 entity types, with element shapes, enum
+vocabularies, identity formats and caps — taken at `w161-hotfix` / `3454161d`. It is a test
+fixture, not shipped code, and the completeness suite drives its loops from it: a
+field the engine adds fails the suite instead of silently having no preset. Re-take it when the engine changes; do not hand-edit it.
