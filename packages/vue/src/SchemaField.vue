@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import {
   KunButton,
   KunChip,
@@ -14,16 +14,19 @@ import {
 import {
   cloneEditValue,
   editValueEqual,
-  formatEditValue,
+  guardEditControl,
   isEditControl,
+  overElementCap,
   resolveControl
 } from '@nextmoe/edit-ui-core'
 import EntityKindPicker from './EntityKindPicker.vue'
 import EntityPicker from './EntityPicker.vue'
+import FieldReadonly from './FieldReadonly.vue'
 import ImageField from './ImageField.vue'
 import ObjectListField from './ObjectListField.vue'
 import SourceContext from './SourceContext.vue'
-import type { EditFieldConfig, EditSchemaField } from './types'
+import { useFieldBuffer } from './useFieldBuffer'
+import type { EditFieldConfig, EditRowIssue, EditSchemaField } from './types'
 
 const props = defineProps<{
   field: EditSchemaField
@@ -32,6 +35,7 @@ const props = defineProps<{
   baseline?: unknown
   suppressed?: unknown
   disabled?: boolean
+  errors?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -39,7 +43,10 @@ const emit = defineEmits<{
   'update:suppressed': [value: unknown]
 }>()
 
-const control = computed(() => resolveControl(props.field, props.config))
+const guarded = computed(() =>
+  guardEditControl(resolveControl(props.field, props.config), props.modelValue)
+)
+const control = computed(() => guarded.value.control)
 const label = computed(() => props.config?.label ?? props.field.key)
 
 // Forward compatibility: the edit engine may start sending a control the
@@ -58,6 +65,9 @@ const readonlyReason = computed(() => {
   if (!props.field.can_propose) {
     return '无编辑权限'
   }
+  if (guarded.value.degraded) {
+    return '结构不支持'
+  }
   if (
     (control.value === 'image' || control.value === 'image-list') &&
     !props.config?.uploadImage
@@ -71,6 +81,26 @@ const readonlyReason = computed(() => {
 })
 const editable = computed(() => !props.disabled && readonlyReason.value === '')
 
+const rowIssues = ref<(EditRowIssue & { index: number })[]>([])
+
+const capExceeded = computed(() =>
+  overElementCap(props.modelValue, props.field.max_elements)
+)
+
+const messages = computed(() => {
+  const out = [...(props.errors ?? [])]
+  if (guarded.value.reason) {
+    out.push(guarded.value.reason)
+  }
+  if (capExceeded.value) {
+    out.push(`最多 ${props.field.max_elements} 项，当前已超出`)
+  }
+  for (const issue of rowIssues.value) {
+    out.push(`第 ${issue.index + 1} 行 ${issue.key}：${issue.reason}`)
+  }
+  return out
+})
+
 const isDirty = computed(
   () => !editValueEqual(props.baseline ?? null, props.modelValue ?? null)
 )
@@ -80,80 +110,21 @@ const contextItems = computed(() =>
   props.config?.contextItems ? props.config.contextItems(props.modelValue) : []
 )
 
-const textBuffer = ref('')
-const boolBuffer = ref(false)
-const stringList = ref<string[]>([])
-
-const syncFromValue = () => {
-  const v = props.modelValue
-  switch (control.value) {
-    case 'switch':
-      boolBuffer.value = v === true
-      break
-    case 'string-list':
-    case 'number-list':
-      stringList.value = Array.isArray(v) ? v.map((x) => String(x)) : []
-      break
-    default:
-      textBuffer.value = v === null || v === undefined ? '' : String(v)
-  }
-}
-watch(() => props.modelValue, syncFromValue, { immediate: true })
-
-const emitText = (raw: string | number) => {
-  const value = String(raw)
-  textBuffer.value = value
-  switch (control.value) {
-    case 'number': {
-      const trimmed = value.trim()
-      if (trimmed === '') {
-        emit('update:modelValue', props.config?.nullable ? null : 0)
-        return
-      }
-      const n = Number(trimmed)
-      emit('update:modelValue', Number.isFinite(n) ? n : trimmed)
-      return
-    }
-    case 'date':
-      emit('update:modelValue', value === '' ? null : value)
-      return
-    default:
-      emit('update:modelValue', value)
-  }
-}
-
-const onDatePicked = (
-  value: string | null | [string | null, string | null]
-) => {
-  const single = Array.isArray(value) ? (value[0] ?? null) : value
-  emit('update:modelValue', single || null)
-}
-
-const emitSelect = (value: string | number | (string | number)[] | null) => {
-  emit('update:modelValue', Array.isArray(value) ? (value[0] ?? null) : value)
-}
-
-const emitSwitch = (value: boolean) => {
-  boolBuffer.value = value
-  emit('update:modelValue', value)
-}
-
-const emitStringList = (items: string[]) => {
-  stringList.value = items
-  if (control.value === 'number-list') {
-    emit(
-      'update:modelValue',
-      items
-        .map((x) => Number(x.trim()))
-        .filter((n) => Number.isInteger(n) && n > 0)
-    )
-    return
-  }
-  emit(
-    'update:modelValue',
-    items.map((x) => x.trim()).filter((x) => x.length > 0)
-  )
-}
+const {
+  textBuffer,
+  boolBuffer,
+  stringList,
+  emitText,
+  emitDate,
+  emitSelect,
+  emitSwitch,
+  emitStringList
+} = useFieldBuffer(
+  control,
+  () => props.modelValue,
+  (value) => emit('update:modelValue', value),
+  () => props.config?.nullable
+)
 
 const selectOptions = computed(() =>
   (props.config?.options ?? []).map((o) => ({ value: o.value, label: o.label }))
@@ -164,20 +135,6 @@ const selectOptions = computed(() =>
 // (vue/no-deprecated-filter). Parentheses used to hide it until prettier
 // stripped them as redundant.
 const selectValue = computed(() => props.modelValue as string | number | null)
-
-const resolveImageURL = (v: unknown) =>
-  props.config?.resolveImage ? props.config.resolveImage(v) : ''
-
-const readonlyImageURLs = computed(() => {
-  if (control.value === 'image') {
-    const url = resolveImageURL(props.modelValue)
-    return url ? [url] : []
-  }
-  if (control.value === 'image-list' && Array.isArray(props.modelValue)) {
-    return props.modelValue.map(resolveImageURL).filter((u) => u !== '')
-  }
-  return []
-})
 </script>
 
 <template>
@@ -254,28 +211,12 @@ const readonlyImageURLs = computed(() => {
       />
     </template>
 
-    <template v-else-if="!editable">
-      <div
-        v-if="readonlyImageURLs.length"
-        class="flex flex-wrap items-start gap-2"
-      >
-        <img
-          v-for="(url, i) in readonlyImageURLs"
-          :key="i"
-          :src="url"
-          loading="lazy"
-          class="max-h-24 max-w-full rounded object-cover"
-        />
-      </div>
-      <p v-else class="text-default-500 text-sm break-all whitespace-pre-wrap">
-        {{ formatEditValue(modelValue, config) }}
-      </p>
-    </template>
-
-    <template v-else-if="!isKnownControl">
-      <p class="text-default-500 text-sm break-all whitespace-pre-wrap">
-        {{ formatEditValue(modelValue, config) }}
-      </p>
+    <template v-else-if="!editable || !isKnownControl">
+      <FieldReadonly
+        :model-value="modelValue"
+        :config="config"
+        :control="control"
+      />
     </template>
 
     <template v-else>
@@ -301,13 +242,18 @@ const readonlyImageURLs = computed(() => {
         v-else-if="control === 'string-list' || control === 'number-list'"
         :model-value="stringList"
         :placeholder="config?.placeholder ?? '输入后回车添加'"
+        :max-tags="field.max_elements"
+        :show-counter="Boolean(field.max_elements)"
+        :respect-composition="true"
         @update:model-value="emitStringList"
       />
       <ObjectListField
         v-else-if="control === 'object-list'"
         :model-value="modelValue"
         :config="config"
+        :max="field.max_elements"
         @update:model-value="(value) => emit('update:modelValue', value)"
+        @update:issues="(value) => (rowIssues = value)"
       />
       <ImageField
         v-else-if="control === 'image' || control === 'image-list'"
@@ -321,7 +267,7 @@ const readonlyImageURLs = computed(() => {
         :model-value="(modelValue as string | null) ?? null"
         mode="single"
         :placeholder="config?.placeholder"
-        @update:model-value="onDatePicked"
+        @update:model-value="emitDate"
       />
       <KunInput
         v-else
@@ -331,6 +277,17 @@ const readonlyImageURLs = computed(() => {
         @update:model-value="emitText"
       />
     </template>
+
+    <ul v-if="messages.length" class="space-y-0.5">
+      <li
+        v-for="(message, i) in messages"
+        :key="i"
+        class="text-danger-600 flex items-start gap-1 text-xs"
+      >
+        <KunIcon name="lucide:circle-alert" class="mt-0.5 shrink-0" />
+        <span>{{ message }}</span>
+      </li>
+    </ul>
 
     <SourceContext
       v-if="config?.contextNote"

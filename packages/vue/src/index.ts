@@ -1,8 +1,10 @@
 export { default as EntityKindPicker } from './EntityKindPicker.vue'
 export { default as EntityPicker } from './EntityPicker.vue'
 export { default as FieldDiff } from './FieldDiff.vue'
+export { default as FieldReadonly } from './FieldReadonly.vue'
 export { default as ImageDiff } from './ImageDiff.vue'
 export { default as ImageField } from './ImageField.vue'
+export { default as ObjectListCell } from './ObjectListCell.vue'
 export { default as ObjectListField } from './ObjectListField.vue'
 export { default as ProposalCard } from './ProposalCard.vue'
 export { default as ReviewQueue } from './ReviewQueue.vue'
@@ -19,8 +21,10 @@ export const EDIT_UI_COMPONENT_NAMES = [
   'EntityKindPicker',
   'EntityPicker',
   'FieldDiff',
+  'FieldReadonly',
   'ImageDiff',
   'ImageField',
+  'ObjectListCell',
   'ObjectListField',
   'ProposalCard',
   'ReviewQueue',
@@ -38,6 +42,9 @@ export type { EditFieldConfig, EditFieldConfigMap } from './types'
 
 export { EDIT_CONTROLS } from '@nextmoe/edit-ui-core'
 export {
+  blankEditRow,
+  buildEditRow,
+  buildEditRows,
   cloneEditValue,
   diffItems,
   diffTextSegments,
@@ -46,8 +53,11 @@ export {
   elideTextDiff,
   formatEditItem,
   formatEditValue,
+  guardEditControl,
   isEditControl,
   isTextDiffElidable,
+  listShape,
+  overElementCap,
   proposalStatusBadge,
   resolveControl,
   revisionActionBadge,
@@ -56,9 +66,13 @@ export {
 } from '@nextmoe/edit-ui-core'
 export type {
   EditAmendment,
+  EditColumnType,
   EditContextItem,
   EditControl,
+  EditListShape,
   EditObjectColumn,
+  EditRowIssue,
+  EditRowResult,
   EditProposal,
   EditProposalStatus,
   EditRevision,
@@ -68,6 +82,7 @@ export type {
   ImageDiffEntry,
   ItemsDiff,
   TextDiffOp,
+  GuardedEditControl,
   TextDiffPiece,
   TextDiffSegment
 } from '@nextmoe/edit-ui-core'

@@ -1,6 +1,7 @@
 export { EDIT_CONTROLS } from './types'
 export type {
   EditAmendment,
+  EditColumnType,
   EditContextItem,
   EditControl,
   EditFieldConfig,
@@ -38,3 +39,9 @@ export type {
   TextDiffPiece,
   TextDiffSegment
 } from './utils'
+
+export { guardEditControl, listShape, overElementCap } from './shape'
+export type { EditListShape, GuardedEditControl } from './shape'
+
+export { blankEditRow, buildEditRow, buildEditRows } from './row'
+export type { EditRowIssue, EditRowResult } from './row'

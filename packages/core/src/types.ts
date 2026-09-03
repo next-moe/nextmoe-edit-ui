@@ -7,6 +7,8 @@ export interface EditSchemaField {
   can_propose: boolean
   can_review: boolean
   would_automerge: boolean
+  max_elements?: number
+  max_suppressed?: number
 }
 
 // The union is derived from the array, not written twice: `isEditControl` is
@@ -37,13 +39,25 @@ export interface EditSelectOption {
   label: string
 }
 
+// `type` is the JSON type the server demands for this column, not the widget.
+// The catalog engine's object parsers type-switch on the wire value and reject a
+// string where they want a number, so a column bound to a text input has to be
+// coerced on the way out or every row is a 422.
+export type EditColumnType = 'string' | 'integer' | 'number' | 'boolean'
+
 export interface EditObjectColumn {
   key: string
   label: string
-  control?: 'input' | 'textarea' | 'select'
+  control?: 'input' | 'textarea' | 'select' | 'switch' | 'entity-picker'
+  type?: EditColumnType
   options?: EditSelectOption[]
   placeholder?: string
   width?: string
+  required?: boolean
+  searchEntities?: (keyword: string) => Promise<EditSelectOption[]>
+  resolveEntities?: (
+    ids: (string | number)[]
+  ) => Promise<EditSelectOption[]> | EditSelectOption[]
 }
 
 export interface EditContextItem {

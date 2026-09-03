@@ -14,6 +14,7 @@ const props = withDefaults(
     disabled?: boolean
     layout?: 'stack' | 'tabs'
     tabbedGroups?: string[]
+    errors?: Record<string, string[]>
   }>(),
   { layout: 'stack' }
 )
@@ -244,6 +245,7 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
                 ? working[companionKey(field.key)]
                 : undefined
             "
+            :errors="errors?.[field.key]"
             :disabled="disabled"
             @update:suppressed="(value) => setSuppressed(field.key, value)"
           />
@@ -261,6 +263,7 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
                 ? working[companionKey(field.key)]
                 : undefined
             "
+            :errors="errors?.[field.key]"
             :disabled="disabled"
             @update:suppressed="(value) => setSuppressed(field.key, value)"
           />
@@ -290,6 +293,7 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
               ? working[companionKey(field.key)]
               : undefined
           "
+          :errors="errors?.[field.key]"
           :disabled="disabled"
           @update:suppressed="(value) => setSuppressed(field.key, value)"
         />

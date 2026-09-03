@@ -41,14 +41,21 @@ export const resolveControl = (
     case 'enum':
       return config?.options?.length ? 'select' : 'input'
     case 'int':
-    case 'ref':
       return 'number'
+    case 'ref':
+      return config?.searchEntities ? 'entity-picker' : 'number'
     case 'date':
       return 'date'
     case 'imagehash':
       return 'image'
     case 'list':
-      return field.diff_hint === 'image' ? 'image-list' : 'string-list'
+      if (field.diff_hint === 'image') {
+        return 'image-list'
+      }
+      if (config?.columns?.length) {
+        return 'object-list'
+      }
+      return config?.searchEntities ? 'entity-picker' : 'string-list'
     default:
       return 'readonly'
   }

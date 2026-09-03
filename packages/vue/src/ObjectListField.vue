@@ -1,67 +1,77 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import {
-  KunButton,
-  KunIcon,
-  KunInput,
-  KunSelect,
-  KunTextarea
-} from '@kungal/ui-vue'
-import type { EditFieldConfig, EditObjectColumn } from './types'
+import { KunButton, KunIcon } from '@kungal/ui-vue'
+import { blankEditRow, buildEditRows } from '@nextmoe/edit-ui-core'
+import ObjectListCell from './ObjectListCell.vue'
+import type { EditFieldConfig, EditObjectColumn, EditRowIssue } from './types'
 
 type ObjectRow = Record<string, unknown>
 
 const props = defineProps<{
   modelValue: unknown
   config?: EditFieldConfig
+  disabled?: boolean
+  max?: number
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: unknown]
+  'update:issues': [issues: (EditRowIssue & { index: number })[]]
 }>()
 
 const columns = computed<EditObjectColumn[]>(() => props.config?.columns ?? [])
+
+// `:key="index"` reuses the previous row's input state when a row above is
+// removed — the deleted row's text appears to jump down one row. The id lives
+// on the editing row only; buildEditRow drops every key the columns do not
+// declare, so it never reaches the patch.
+const ROW_ID = '__rid'
+let seq = 0
+const withId = (row: ObjectRow): ObjectRow => ({ ...row, [ROW_ID]: ++seq })
 
 const rows = ref<ObjectRow[]>([])
 watch(
   () => props.modelValue,
   (value) => {
     rows.value = Array.isArray(value)
-      ? (value as ObjectRow[]).map((row) => ({ ...row }))
+      ? (value as ObjectRow[]).map((row) => withId(row))
       : []
   },
   { immediate: true }
 )
 
+const issues = ref<(EditRowIssue & { index: number })[]>([])
+
+const issueFor = (index: number, key: string) =>
+  issues.value.find((i) => i.index === index && i.key === key)?.reason
+
+const isEmptyRow = (row: ObjectRow) =>
+  !columns.value.some((c) => {
+    const v = row[c.key]
+    return v === true || (v !== null && v !== undefined && String(v).trim() !== '')
+  })
+
 const emitRows = () => {
-  const cols = columns.value
-  emit(
-    'update:modelValue',
-    rows.value
-      .filter((row) => cols.some((c) => String(row[c.key] ?? '').trim() !== ''))
-      .map((row) => {
-        const out: ObjectRow = { ...row }
-        for (const c of cols) {
-          if (typeof out[c.key] === 'string') {
-            out[c.key] = (out[c.key] as string).trim()
-          }
-        }
-        return out
-      })
-  )
+  const kept = rows.value.filter((row) => !isEmptyRow(row))
+  const built = buildEditRows(kept, columns.value)
+  issues.value = built.issues
+  emit('update:issues', built.issues)
+  emit('update:modelValue', built.rows)
 }
 
-const coerceColumnValue = (col: EditObjectColumn, raw: string): unknown => {
-  const match = (col.options ?? []).find((o) => String(o.value) === raw)
-  return match ? match.value : raw
+const setCell = (row: ObjectRow, key: string, value: unknown) => {
+  row[key] = value
+  emitRows()
 }
+
+const atCap = computed(
+  () => typeof props.max === 'number' && props.max > 0 && rows.value.length >= props.max
+)
 
 const addRow = () => {
-  const blank: ObjectRow = {}
-  for (const c of columns.value) {
-    blank[c.key] = c.control === 'select' ? (c.options?.[0]?.value ?? '') : ''
-  }
-  rows.value.push({ ...blank, ...(props.config?.newRow?.() ?? {}) })
+  rows.value.push(
+    withId({ ...blankEditRow(columns.value), ...(props.config?.newRow?.() ?? {}) })
+  )
 }
 
 const removeRow = (index: number) => {
@@ -73,57 +83,67 @@ const removeRow = (index: number) => {
 <template>
   <div class="space-y-2">
     <div
-      v-for="(row, index) in rows"
-      :key="index"
-      class="flex items-start gap-2"
+      v-if="columns.length > 1"
+      class="text-default-400 hidden items-center gap-2 px-0.5 text-xs md:flex"
     >
-      <template v-for="col in columns" :key="col.key">
-        <KunSelect
-          v-if="col.control === 'select'"
-          :model-value="String(row[col.key] ?? '')"
-          :options="
-            (col.options ?? []).map((o) => ({
-              value: String(o.value),
-              label: o.label
-            }))
-          "
-          :class-name="col.width ?? 'flex-1'"
-          @update:model-value="
-            (v: string | string[] | null) => {
-              row[col.key] = coerceColumnValue(col, String(v ?? ''))
-              emitRows()
-            }
-          "
+      <span
+        v-for="col in columns"
+        :key="col.key"
+        :class="[col.width ?? 'flex-1', 'min-w-0']"
+      >
+        {{ col.label }}
+        <span v-if="col.required" class="text-danger-500">*</span>
+      </span>
+      <span class="w-8 shrink-0" />
+    </div>
+
+    <div
+      v-for="(row, index) in rows"
+      :key="String(row[ROW_ID])"
+      class="flex flex-col items-start gap-2 md:flex-row"
+    >
+      <div
+        v-for="col in columns"
+        :key="col.key"
+        :class="[col.width ?? 'flex-1', 'min-w-0']"
+      >
+        <ObjectListCell
+          :column="col"
+          :model-value="row[col.key]"
+          :disabled="disabled"
+          :error="issueFor(index, col.key)"
+          @update:model-value="(value) => setCell(row, col.key, value)"
         />
-        <KunTextarea
-          v-else-if="col.control === 'textarea'"
-          v-model="row[col.key] as string"
-          :placeholder="col.placeholder ?? col.label"
-          :class-name="col.width ?? 'flex-1'"
-          @update:model-value="emitRows"
-        />
-        <KunInput
-          v-else
-          v-model="row[col.key] as string"
-          :placeholder="col.placeholder ?? col.label"
-          :class-name="col.width ?? 'flex-1'"
-          @update:model-value="emitRows"
-        />
-      </template>
+      </div>
       <KunButton
         :is-icon-only="true"
         variant="light"
         color="danger"
         size="sm"
+        :disabled="disabled"
+        :aria-label="`删除第 ${index + 1} 行`"
         @click="removeRow(index)"
       >
         <KunIcon name="lucide:x" />
       </KunButton>
     </div>
 
-    <KunButton variant="flat" color="default" size="sm" @click="addRow">
-      <KunIcon name="lucide:plus" />
-      添加一行
-    </KunButton>
+    <p v-if="!rows.length" class="text-default-400 text-sm">暂无条目</p>
+
+    <div class="flex items-center gap-3">
+      <KunButton
+        variant="flat"
+        color="default"
+        size="sm"
+        :disabled="disabled || atCap"
+        @click="addRow"
+      >
+        <KunIcon name="lucide:plus" />
+        添加一行
+      </KunButton>
+      <span v-if="max" class="text-default-400 text-xs">
+        {{ rows.length }} / {{ max }}
+      </span>
+    </div>
   </div>
 </template>
