@@ -11,9 +11,15 @@ export interface EditSchemaElement {
   members?: EditSchemaElementMember[]
 }
 
-// The last four fields never arrive on the actor-caps schema face; they live on
-// GET /v2/catalog/schemas/{object} and are filled in by mergeSchemaFaces. A
-// field object built from the caps response alone legitimately lacks them.
+// How a write carries a vocabulary value: `int` is the wire code (base plus the
+// token's index in the vocabulary's published order), `token` is the token
+// string. Spec 2.8.0 publishes it exactly where a field names a vocabulary.
+export type EditVocabularyEncoding = 'int' | 'token'
+
+// The value-shape fields — vocabulary through element — never arrive on the
+// actor-caps schema face; they live on GET /v2/catalog/schemas/{object} and are
+// filled in by mergeSchemaFaces. A field object built from the caps response
+// alone legitimately lacks them.
 export interface EditSchemaField {
   key: string
   kind: string
@@ -26,6 +32,7 @@ export interface EditSchemaField {
   max_elements?: number
   max_suppressed?: number
   vocabulary?: string
+  encoding?: EditVocabularyEncoding
   base?: number
   nullable?: boolean
   element?: EditSchemaElement | null

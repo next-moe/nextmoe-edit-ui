@@ -80,7 +80,7 @@ export const fields: EditSchemaField[] = [
   field('gallery', 'list', 'image'),
   field('slug', 'text', 'inline', { can_propose: false }),
   field('holo_intensity', 'text'),
-  field('region', 'enum', 'inline', { vocabulary: 'region', base: 0 })
+  field('region', 'enum', 'inline', { vocabulary: 'region', encoding: 'token' })
 ]
 
 export const vocabularies: EditVocabularyMap = {

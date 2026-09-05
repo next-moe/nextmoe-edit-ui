@@ -36,13 +36,24 @@ export const workFields: EditSchemaField[] = [
   { key: 'catalog.work.screenshots', kind: 'list', diff_hint: 'image', max_elements: 200, ...base }
 ]
 
-// The other face: GET /v2/catalog/schemas/work (spec 2.6.0), which knows the
+// The other face: GET /v2/catalog/schemas/work (spec 2.8.0), which knows the
 // value shapes but no actor caps. Defaults (vocabulary "", base 0, nullable
-// false, no element) are omitted here; the wire always sends them.
+// false, no element) are omitted here; the wire always sends them. `encoding`
+// is the exception — it arrives exactly where a vocabulary does.
 export const workValueFields: EditSchemaValueField[] = [
   { key: 'catalog.work.display_name', field_type: 'text' },
-  { key: 'catalog.work.olang', field_type: 'enum', vocabulary: 'olang' },
-  { key: 'catalog.work.content_rating', field_type: 'enum', vocabulary: 'content_rating' },
+  {
+    key: 'catalog.work.olang',
+    field_type: 'enum',
+    vocabulary: 'olang',
+    encoding: 'token'
+  },
+  {
+    key: 'catalog.work.content_rating',
+    field_type: 'enum',
+    vocabulary: 'content_rating',
+    encoding: 'int'
+  },
   { key: 'catalog.work.display_nsfw', field_type: 'enum' },
   {
     key: 'catalog.work.titles',

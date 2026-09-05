@@ -22,7 +22,8 @@ interface EditSchemaField {
   // 以下来自另一张脸 GET /v2/catalog/schemas/{object}，
   // 用 mergeSchemaFaces(capsFields, valueFields) 合并进来
   vocabulary?: string   // /v2/vocabularies 里的词表名
-  base?: number         // 整数编码字段：码 = base + 词表发布序下标
+  encoding?: 'int' | 'token'  // 有词表时必有：写入发整数码还是发 token
+  base?: number         // int 编码：码 = base + 词表发布序下标
   nullable?: boolean    // null 会清除已存的值
   element?: EditSchemaElement | null
 }`

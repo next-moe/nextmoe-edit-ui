@@ -137,8 +137,10 @@ const PLATFORM_LABEL: Record<string, string> = {
   xxs: 'Xbox Series X/S'
 }
 
-// The published vocabulary's order, wiu-before-win included: vocab.spec.ts
-// asserts this list against the census, so a private sort here fails the suite.
+// The published vocabulary's order, wiu-before-win included. platform is
+// token-coded, so no wire code is an index into this list and the order is
+// presentational — but vocab.spec.ts asserts it against the census, so a
+// private sort here fails the suite.
 const PLATFORM_CODES = [
   'and', 'bdp', 'dos', 'drc', 'dvd', 'fm7', 'fmt', 'gba', 'gbc', 'ios',
   'lin', 'mac', 'mob', 'msx', 'n3d', 'nds', 'nes', 'oth', 'p88', 'p98',

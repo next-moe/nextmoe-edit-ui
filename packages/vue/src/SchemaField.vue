@@ -53,12 +53,7 @@ const emit = defineEmits<{
 // A schema-declared vocabulary can turn a config-less enum into a select, so
 // the merged config, not the raw prop, is what every consumer below sees.
 const cfg = computed(() =>
-  applyVocabularyOptions(
-    props.field,
-    props.config,
-    props.vocabularies,
-    props.modelValue
-  )
+  applyVocabularyOptions(props.field, props.config, props.vocabularies)
 )
 
 const guarded = computed(() =>

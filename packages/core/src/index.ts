@@ -15,12 +15,12 @@ export type {
   EditSchemaField,
   EditSelectOption,
   EditUser,
+  EditVocabularyEncoding,
   ImageDiffEntry
 } from './types'
 
 export {
   applyVocabularyOptions,
-  fieldVocabularyCoding,
   fieldVocabularyOptions,
   mergeSchemaFaces,
   vocabularyOptions
@@ -28,7 +28,6 @@ export {
 export type {
   EditSchemaValueField,
   EditVocabulary,
-  EditVocabularyCoding,
   EditVocabularyMap,
   EditVocabularyValue
 } from './schema'

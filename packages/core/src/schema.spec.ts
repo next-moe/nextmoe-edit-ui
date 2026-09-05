@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
   applyVocabularyOptions,
-  fieldVocabularyCoding,
   fieldVocabularyOptions,
   mergeSchemaFaces,
   vocabularyOptions
@@ -49,6 +48,7 @@ describe('mergeSchemaFaces', () => {
           key: 'catalog.character.gender',
           field_type: 'enum',
           vocabulary: 'gender',
+          encoding: 'int',
           base: 1,
           nullable: true
         }
@@ -56,6 +56,7 @@ describe('mergeSchemaFaces', () => {
     )
     expect(merged[0]).toMatchObject({
       vocabulary: 'gender',
+      encoding: 'int',
       base: 1,
       nullable: true,
       can_propose: true
@@ -83,32 +84,11 @@ describe('mergeSchemaFaces', () => {
   })
 })
 
-describe('fieldVocabularyCoding', () => {
-  it('trusts a number value', () => {
-    expect(fieldVocabularyCoding({ base: 0 }, 2)).toBe('integer')
-  })
-
-  it('trusts a string value, the empty string included', () => {
-    expect(fieldVocabularyCoding({ base: 0 }, 'ja')).toBe('token')
-    expect(fieldVocabularyCoding({ base: 0 }, '')).toBe('token')
-  })
-
-  it('takes a positive base as proof of integer coding when the value is null', () => {
-    expect(fieldVocabularyCoding({ base: 1 }, null)).toBe('integer')
-  })
-
-  it('refuses to guess on a null value with base 0', () => {
-    expect(fieldVocabularyCoding({ base: 0 }, null)).toBeNull()
-    expect(fieldVocabularyCoding({}, undefined)).toBeNull()
-  })
-})
-
 describe('fieldVocabularyOptions', () => {
   it('derives integer codes as base plus published-order index', () => {
     const options = fieldVocabularyOptions(
-      { kind: 'enum', vocabulary: 'gender', base: 1 },
-      VOCABULARIES,
-      2
+      { kind: 'enum', vocabulary: 'gender', encoding: 'int', base: 1 },
+      VOCABULARIES
     )
     expect(options).toEqual([
       { value: 1, label: 'Male' },
@@ -117,11 +97,10 @@ describe('fieldVocabularyOptions', () => {
     ])
   })
 
-  it('derives token values for a string-coded field', () => {
+  it('derives token values under token encoding, base ignored', () => {
     const options = fieldVocabularyOptions(
-      { kind: 'enum', vocabulary: 'olang', base: 0 },
-      VOCABULARIES,
-      'ja'
+      { kind: 'enum', vocabulary: 'olang', encoding: 'token', base: 1 },
+      VOCABULARIES
     )
     expect(options).toEqual([
       { value: 'en', label: 'English' },
@@ -129,29 +108,35 @@ describe('fieldVocabularyOptions', () => {
     ])
   })
 
-  it('returns null when the vocabulary is unknown or the coding undecidable', () => {
+  it('returns null when the vocabulary is unknown or the field is not an enum', () => {
     expect(
       fieldVocabularyOptions(
-        { kind: 'enum', vocabulary: 'nope', base: 0 },
-        VOCABULARIES,
-        1
+        { kind: 'enum', vocabulary: 'nope', encoding: 'int' },
+        VOCABULARIES
       )
     ).toBeNull()
     expect(
       fieldVocabularyOptions(
-        { kind: 'enum', vocabulary: 'olang', base: 0 },
-        VOCABULARIES,
-        null
+        { kind: 'text', vocabulary: 'olang', encoding: 'token' },
+        VOCABULARIES
       )
     ).toBeNull()
+  })
+
+  // The caps face carries no encoding at all, and a server below spec 2.8.0
+  // publishes a vocabulary without one.
+  it('returns null when the encoding is not declared', () => {
     expect(
-      fieldVocabularyOptions({ kind: 'text', vocabulary: 'olang' }, VOCABULARIES, 'ja')
+      fieldVocabularyOptions(
+        { kind: 'enum', vocabulary: 'gender', base: 1 },
+        VOCABULARIES
+      )
     ).toBeNull()
   })
 
   it('prefers caller labels over published display names', () => {
     const options = vocabularyOptions(VOCABULARIES.gender!, {
-      coding: 'integer',
+      encoding: 'int',
       base: 1,
       labels: { male: '男性' }
     })
@@ -163,20 +148,23 @@ describe('applyVocabularyOptions', () => {
   it('keeps a config that already has options', () => {
     const config = { label: '性别', options: [{ value: 1, label: '男性' }] }
     const applied = applyVocabularyOptions(
-      capsField({ vocabulary: 'gender', base: 1 }),
+      capsField({ vocabulary: 'gender', encoding: 'int', base: 1 }),
       config,
-      VOCABULARIES,
-      1
+      VOCABULARIES
     )
     expect(applied!.options).toBe(config.options)
   })
 
   it('fills options and nullable for a bare field', () => {
     const applied = applyVocabularyOptions(
-      capsField({ vocabulary: 'gender', base: 1, nullable: true }),
+      capsField({
+        vocabulary: 'gender',
+        encoding: 'int',
+        base: 1,
+        nullable: true
+      }),
       undefined,
-      VOCABULARIES,
-      null
+      VOCABULARIES
     )
     expect(applied).toMatchObject({
       label: 'catalog.character.gender',
@@ -187,11 +175,11 @@ describe('applyVocabularyOptions', () => {
 
   it('returns the original config untouched when nothing is derivable', () => {
     const config = { label: '性别' }
+    expect(applyVocabularyOptions(capsField(), config, VOCABULARIES)).toBe(
+      config
+    )
     expect(
-      applyVocabularyOptions(capsField(), config, VOCABULARIES, null)
-    ).toBe(config)
-    expect(
-      applyVocabularyOptions(capsField(), undefined, undefined, null)
+      applyVocabularyOptions(capsField(), undefined, undefined)
     ).toBeUndefined()
   })
 
@@ -200,8 +188,7 @@ describe('applyVocabularyOptions', () => {
     const applied = applyVocabularyOptions(
       capsField({ nullable: true }),
       config,
-      VOCABULARIES,
-      null
+      VOCABULARIES
     )
     expect(applied!.nullable).toBe(false)
   })

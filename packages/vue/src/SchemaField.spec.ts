@@ -91,7 +91,7 @@ describe('SchemaField — schema-declared vocabulary', () => {
   it('renders a select from the vocabulary when no config exists', () => {
     const w = mount(SchemaField, {
       props: {
-        field: enumField({ vocabulary: 'gender', base: 1 }),
+        field: enumField({ vocabulary: 'gender', encoding: 'int', base: 1 }),
         vocabularies: VOCABULARIES,
         modelValue: 2
       }
@@ -100,10 +100,23 @@ describe('SchemaField — schema-declared vocabulary', () => {
     expect(w.text()).toContain('Female')
   })
 
+  // The options come from the declaration, not from the value: an empty field
+  // is the one that most needs the picker.
+  it('renders the select on an empty value', () => {
+    const w = mount(SchemaField, {
+      props: {
+        field: enumField({ vocabulary: 'gender', encoding: 'int', base: 1 }),
+        vocabularies: VOCABULARIES,
+        modelValue: null
+      }
+    })
+    expect(w.text()).not.toContain('本期只读')
+  })
+
   it('stays read-only when the vocabulary is not in the map', () => {
     const w = mount(SchemaField, {
       props: {
-        field: enumField({ vocabulary: 'unheard_of', base: 0 }),
+        field: enumField({ vocabulary: 'unheard_of', encoding: 'int' }),
         vocabularies: VOCABULARIES,
         modelValue: 2
       }
@@ -111,14 +124,14 @@ describe('SchemaField — schema-declared vocabulary', () => {
     expect(w.text()).toContain('本期只读')
   })
 
-  // A null value on a base-0 field leaves integer-vs-token coding undecidable;
-  // guessing wrong submits a 422, so the field must not offer an editor.
-  it('stays read-only when the coding is undecidable', () => {
+  // A vocabulary with no encoding is a pre-2.8.0 server or the caps face alone;
+  // guessing the wrong one submits a 422, so the field offers no editor.
+  it('stays read-only when the encoding is not declared', () => {
     const w = mount(SchemaField, {
       props: {
-        field: enumField({ vocabulary: 'gender', base: 0 }),
+        field: enumField({ vocabulary: 'gender', base: 1 }),
         vocabularies: VOCABULARIES,
-        modelValue: null
+        modelValue: 2
       }
     })
     expect(w.text()).toContain('本期只读')

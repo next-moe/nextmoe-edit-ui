@@ -33,7 +33,7 @@ export type {
   EditSelectOption,
   EditUser,
   EditVocabulary,
-  EditVocabularyCoding,
+  EditVocabularyEncoding,
   EditVocabularyMap,
   EditVocabularyValue,
   ImageDiffEntry,

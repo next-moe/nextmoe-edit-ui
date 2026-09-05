@@ -83,9 +83,10 @@ describe('catalogConfig completeness', () => {
           continue
         }
         // Set comparison, not order: the census enum is the validator's
-        // accepted-set order, which contradicts the published vocabulary order
-        // at platform's win/wiu. The tables follow the published order, and
-        // vocab.spec.ts asserts that order per table.
+        // accepted-set order, which differs from the published vocabulary order
+        // at platform's win/wiu. Both are legal — an order is contractual only
+        // under int encoding, and platform is token-coded. The tables follow
+        // the published order, and vocab.spec.ts asserts it per table.
         const values = config!.options?.map((option) => option.value)
         expect(
           values && [...values].sort(),

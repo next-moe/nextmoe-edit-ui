@@ -2,7 +2,8 @@ import type {
   EditFieldConfig,
   EditSchemaElement,
   EditSchemaField,
-  EditSelectOption
+  EditSelectOption,
+  EditVocabularyEncoding
 } from './types'
 
 // One field on GET /v2/catalog/schemas/{object} — the keyless value-shape face.
@@ -16,6 +17,7 @@ export interface EditSchemaValueField {
   max_suppressed?: number
   max_elements?: number
   vocabulary?: string
+  encoding?: EditVocabularyEncoding
   base?: number
   nullable?: boolean
   element?: EditSchemaElement | null
@@ -51,6 +53,9 @@ export const mergeSchemaFaces = (
     if (shape.vocabulary) {
       merged.vocabulary = shape.vocabulary
     }
+    if (shape.encoding) {
+      merged.encoding = shape.encoding
+    }
     if (shape.base !== undefined) {
       merged.base = shape.base
     }
@@ -64,76 +69,59 @@ export const mergeSchemaFaces = (
   })
 }
 
-export type EditVocabularyCoding = 'integer' | 'token'
-
-// On an integer-coded field the wire carries base + the token's index in the
-// vocabulary's published order; on a token-coded field it carries the token.
+// A vocabulary's published order is contractual only under `int`, where the
+// wire code is base plus the token's index in it; under `token` the wire
+// carries the token itself and the order is presentational.
 export const vocabularyOptions = (
   vocabulary: EditVocabulary,
   opts?: {
-    coding?: EditVocabularyCoding
+    encoding?: EditVocabularyEncoding
     base?: number
     labels?: Record<string, string>
   }
 ): EditSelectOption[] =>
   vocabulary.values.map((entry, index) => ({
-    value: opts?.coding === 'integer' ? (opts.base ?? 0) + index : entry.value,
+    value: opts?.encoding === 'int' ? (opts.base ?? 0) + index : entry.value,
     label: opts?.labels?.[entry.value] ?? entry.display_name ?? entry.value
   }))
 
-// The schema cannot say whether a scalar enum field is integer-coded (gender
-// wants 2) or token-coded (olang wants "ja"): both declare kind "enum" plus a
-// vocabulary, and infra's own contract test tells them apart only by probing
-// the validator. The stored value is the reliable witness; with no value, a
-// base above zero proves integer coding (base exists only to shift indices)
-// and base 0 proves nothing.
-export const fieldVocabularyCoding = (
-  field: Pick<EditSchemaField, 'base'>,
-  value: unknown
-): EditVocabularyCoding | null => {
-  if (typeof value === 'number') {
-    return 'integer'
-  }
-  if (typeof value === 'string') {
-    return 'token'
-  }
-  return (field.base ?? 0) > 0 ? 'integer' : null
-}
-
+// Nothing else on the wire separates the two encodings: content_rating wants 2
+// and olang wants "ja", yet both declare kind "enum" plus a vocabulary. A field
+// that reaches here without an encoding came from the caps face alone or from a
+// server below spec 2.8.0, and degrades to read-only rather than guessing
+// itself into a 422.
 export const fieldVocabularyOptions = (
-  field: Pick<EditSchemaField, 'kind' | 'vocabulary' | 'base'>,
+  field: Pick<EditSchemaField, 'kind' | 'vocabulary' | 'encoding' | 'base'>,
   vocabularies: EditVocabularyMap | undefined,
-  value: unknown,
   labels?: Record<string, string>
 ): EditSelectOption[] | null => {
-  if (field.kind !== 'enum' || !field.vocabulary) {
+  if (field.kind !== 'enum' || !field.vocabulary || !field.encoding) {
     return null
   }
   const vocabulary = vocabularies?.[field.vocabulary]
   if (!vocabulary) {
     return null
   }
-  const coding = fieldVocabularyCoding(field, value)
-  if (!coding) {
-    return null
-  }
-  return vocabularyOptions(vocabulary, { coding, base: field.base, labels })
+  return vocabularyOptions(vocabulary, {
+    encoding: field.encoding,
+    base: field.base,
+    labels
+  })
 }
 
 // The renderer-facing merge: a config that already carries options keeps them
 // (a site's hand-written labels beat published display names), one without
-// gains vocabulary-derived options when the coding is decidable, and the
-// schema's nullable fills in when the config is silent. When nothing changes,
-// the original config comes back untouched.
+// gains vocabulary-derived options, and the schema's nullable fills in when the
+// config is silent. When nothing changes, the original config comes back
+// untouched.
 export const applyVocabularyOptions = <TComponent = unknown>(
   field: EditSchemaField,
   config: EditFieldConfig<TComponent> | undefined,
-  vocabularies: EditVocabularyMap | undefined,
-  value: unknown
+  vocabularies: EditVocabularyMap | undefined
 ): EditFieldConfig<TComponent> | undefined => {
   const options = config?.options?.length
     ? null
-    : fieldVocabularyOptions(field, vocabularies, value)
+    : fieldVocabularyOptions(field, vocabularies)
   const nullable = config?.nullable ?? field.nullable
   if (!options && nullable === config?.nullable) {
     return config
