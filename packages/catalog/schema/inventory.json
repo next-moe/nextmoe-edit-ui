@@ -1,8 +1,8 @@
 {
   "generated_from": {
     "repo": "nextmoe-infra",
-    "branch": "w161-hotfix",
-    "sha": "84ee2978"
+    "branch": "main",
+    "sha": "4b280bff"
   },
   "total_fields": 50,
   "notes": {
@@ -10,7 +10,7 @@
     "max_elements_default": "editing.DefaultMaxElements = 200 (editing/registry.go:112). asArray/asArrayN use editspec.maxListElements, which aliases that constant (editspec/curated.go:103). Registration does not rewrite MaxElements; the v2 handler resolves nonpositive list caps to 200 (apiv2/handler/catalog_schema.go:30). Scalar caps retain census null; the v2 face emits 0.",
     "max_suppressed_default": "SuppressedFieldSpec resolves the parent declaration or default 200 into both companion caps (editing/suppression.go:16,46,71). Register copies the effective suppression limit into a parent whose declaration was nonpositive (editing/registry.go:331). The v2 handler copies normalized MaxSuppressed (apiv2/handler/catalog_schema.go:42). Titles and character aliases emit 200; credits and roster emit 500. Lists without suppression emit 0; scalar caps retain census null (wire 0).",
     "policy": "No FieldSpec in catalog/editspec sets Policy; every field inherits EntityTypeSpec.DefaultPolicy. SiteOverlays overlay every registered key of that type, including .suppressed companions, because the overlay maps are built from the same Fields slice the companions are appended to.",
-    "wire_value": "wire_value mirrors apiv2/handler/catalog_schema.go:45 and apiv2/repr/schema.go:16: absent Value gives vocabulary=\"\", base=0, nullable=false, element=null. An omitted wire element is recorded as JSON null; scalar element members are [] (apiv2/handler/catalog_schema.go:52). wire_value_source points to the declaration or default-producing field. Integer vocabulary labels map to base + published index; tokens remain strings. olang tokens originate at apiv2/vocab/vocab.go:260; release_lang is the sorted union with six extras at apiv2/vocab/vocab.go:316.",
+    "wire_value": "wire_value mirrors apiv2/handler/catalog_schema.go:45 and apiv2/repr/schema.go:16: absent Value gives vocabulary=\"\", base=0, nullable=false, element=null. An omitted wire element is recorded as JSON null; scalar element members are [] (apiv2/handler/catalog_schema.go:52). wire_value_source points to the declaration or default-producing field. Integer vocabulary labels map to base + published index; tokens remain strings. Field encoding is emitted when vocabulary is non-empty: Coded=true yields int, otherwise token. Element members publish no encoding; validator chooses integer versus token from member validator (member type is not a reliable discriminant). olang tokens originate at apiv2/vocab/vocab.go:260; release_lang is the sorted union with six extras at apiv2/vocab/vocab.go:316.",
     "nullable_semantics": "Field wire_value.nullable means JSON null clears the stored value (apiv2/repr/schema.go:26); member nullable means absent or empty in at least one valid element (apiv2/repr/schema.go:42), not necessarily JSON null. Existing nullable/property nullable keys describe validator acceptance of JSON null. Character lang accepts empty string (editspec/character.go:186), but declares vocabulary olang and nullable=false (editspec/character.go:115). Title lang declares member nullable=true (editspec/work.go:172), while only kind=1 accepts empty string and missing/null still fail (editspec/work_titles.go:57,89)."
   },
   "entity_types": [
@@ -231,6 +231,7 @@
           "source": "editspec/character.go:96",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -381,6 +382,7 @@
           "source": "editspec/character.go:133",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -468,6 +470,7 @@
           "source": "editspec/character.go:122",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -547,6 +550,7 @@
           "source": "editspec/character.go:121",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -628,6 +632,7 @@
           "source": "editspec/character.go:123",
           "wire_value": {
             "vocabulary": "blood_type",
+            "encoding": "int",
             "base": 1,
             "nullable": true,
             "element": null
@@ -697,6 +702,7 @@
           "source": "editspec/character.go:128",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -771,6 +777,7 @@
           "source": "editspec/character.go:131",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -845,6 +852,7 @@
           "source": "editspec/character.go:117",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -924,6 +932,7 @@
           "source": "editspec/character.go:114",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -1004,6 +1013,7 @@
           "source": "editspec/character.go:118",
           "wire_value": {
             "vocabulary": "gender",
+            "encoding": "int",
             "base": 1,
             "nullable": true,
             "element": null
@@ -1073,6 +1083,7 @@
           "source": "editspec/character.go:126",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -1142,6 +1153,7 @@
           "source": "editspec/character.go:130",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -1262,6 +1274,7 @@
           "source": "editspec/character.go:135",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -1412,6 +1425,7 @@
           "source": "editspec/character.go:115",
           "wire_value": {
             "vocabulary": "olang",
+            "encoding": "token",
             "base": 0,
             "nullable": false,
             "element": null
@@ -1486,6 +1500,7 @@
           "source": "editspec/character.go:116",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -1555,6 +1570,7 @@
           "source": "editspec/character.go:129",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -1624,6 +1640,7 @@
           "source": "editspec/character.go:127",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -1706,6 +1723,7 @@
           "source": "editspec/taxonomy.go:189",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -1765,6 +1783,7 @@
           "source": "editspec/taxonomy.go:184",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -1826,6 +1845,7 @@
           "source": "editspec/taxonomy.go:179",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -1919,6 +1939,7 @@
           "source": "editspec/taxonomy.go:90",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -2023,6 +2044,7 @@
           "source": "editspec/taxonomy.go:102",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -2077,6 +2099,7 @@
           "source": "editspec/taxonomy.go:82",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -2157,6 +2180,7 @@
           "source": "editspec/release.go:158",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -2239,6 +2263,7 @@
           "source": "editspec/release.go:104",
           "wire_value": {
             "vocabulary": "release_kind",
+            "encoding": "int",
             "base": 0,
             "nullable": false,
             "element": null
@@ -2376,6 +2401,7 @@
           "source": "editspec/release.go:123",
           "wire_value": {
             "vocabulary": "release_lang",
+            "encoding": "token",
             "base": 0,
             "nullable": true,
             "element": null
@@ -2505,6 +2531,7 @@
           "source": "editspec/release.go:135",
           "wire_value": {
             "vocabulary": "platform",
+            "encoding": "token",
             "base": 0,
             "nullable": true,
             "element": null
@@ -2645,6 +2672,7 @@
           "source": "editspec/release.go:147",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -2719,6 +2747,7 @@
           "source": "editspec/release.go:111",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": true,
             "element": null
@@ -2807,6 +2836,7 @@
           "source": "editspec/taxonomy.go:227",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -2881,6 +2911,7 @@
           "source": "editspec/taxonomy.go:222",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -2969,6 +3000,7 @@
           "source": "editspec/taxonomy.go:144",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -3073,6 +3105,7 @@
           "source": "editspec/work.go:254",
           "wire_value": {
             "vocabulary": "content_rating",
+            "encoding": "int",
             "base": 0,
             "nullable": false,
             "element": null
@@ -3237,6 +3270,7 @@
           "source": "editspec/work.go:317",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -3428,6 +3462,7 @@
           "source": "editspec/work.go:182",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -3544,6 +3579,7 @@
           "source": "editspec/work.go:346",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -3626,6 +3662,7 @@
           "source": "editspec/work.go:241",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -3700,6 +3737,7 @@
           "source": "editspec/work.go:275",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": null
@@ -3789,6 +3827,7 @@
           "source": "editspec/work.go:299",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -3907,6 +3946,7 @@
           "source": "editspec/work.go:263",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -4055,6 +4095,7 @@
           "source": "editspec/work.go:287",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -4172,6 +4213,7 @@
           "source": "editspec/work.go:311",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -4301,6 +4343,7 @@
           "source": "editspec/work.go:247",
           "wire_value": {
             "vocabulary": "olang",
+            "encoding": "token",
             "base": 0,
             "nullable": false,
             "element": null
@@ -4446,6 +4489,7 @@
           "source": "editspec/work.go:211",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -4555,6 +4599,7 @@
           "source": "editspec/work.go:348",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -4703,6 +4748,7 @@
           "source": "editspec/work.go:332",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -4814,6 +4860,7 @@
           "source": "editspec/work.go:305",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -4896,6 +4943,7 @@
           "source": "editspec/work.go:281",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -5136,6 +5184,7 @@
           "source": "editspec/work.go:164",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
@@ -5252,6 +5301,7 @@
           "source": "editspec/work.go:261",
           "wire_value": {
             "vocabulary": "",
+            "encoding": null,
             "base": 0,
             "nullable": false,
             "element": {
