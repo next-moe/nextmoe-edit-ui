@@ -31,6 +31,7 @@ type WireMember = {
 
 type WireValue = {
   vocabulary?: string | null
+  encoding?: string | null
   base?: number
   element?: { members?: WireMember[] } | null
 }
@@ -58,6 +59,34 @@ const wireSpec = (
     .toBeTruthy()
   return { vocabulary: carrier!.vocabulary!, base: carrier!.base ?? 0 }
 }
+
+// A field declares its coding outright since spec 2.8.0, but
+// editing.ElementMember carries no encoding, so a member's `type` is the only
+// discriminant the census can offer — and nothing upstream gates it:
+// TestVocabularyTokensPassValidators loops fields alone. This map is what goes
+// red if a member ever takes a code its type does not predict, rather than the
+// site posting a 422 per row.
+const MEMBER_CODING: Record<string, string> = { int: 'int', enum: 'token' }
+
+const codingsByVocabulary = (): Map<string, Set<string>> => {
+  const codings = new Map<string, Set<string>>()
+  const record = (vocabulary: string | null | undefined, coding?: string) => {
+    if (!vocabulary || !coding) {
+      return
+    }
+    const seen = codings.get(vocabulary) ?? new Set<string>()
+    codings.set(vocabulary, seen.add(coding))
+  }
+  for (const field of fields) {
+    record(field.wire_value?.vocabulary, field.wire_value?.encoding ?? undefined)
+    for (const member of field.wire_value?.element?.members ?? []) {
+      record(member.vocabulary, MEMBER_CODING[member.type])
+    }
+  }
+  return codings
+}
+
+const CODINGS = codingsByVocabulary()
 
 // On an integer-coded field the wire carries base + the token's index in the
 // vocabulary's published order; the census records both halves.
@@ -132,6 +161,32 @@ describe('option tables against the census vocabularies', () => {
       covered.add(vocabulary)
     }
     expect([...covered].sort()).toEqual(Object.keys(vocabularies).sort())
+  })
+
+  // The split between the two tables above was hand-made from reading the
+  // engine; this is the census checking it back. A vocabulary whose carriers
+  // disagree also fails here — the set would hold both codings.
+  it('splits the two tables the way the census declares each vocabulary', () => {
+    for (const { name, field, member } of INTEGER_TABLES) {
+      const { vocabulary } = wireSpec(field, member)
+      expect([...(CODINGS.get(vocabulary) ?? [])], name).toEqual(['int'])
+    }
+    for (const { name, vocabulary } of TOKEN_TABLES) {
+      expect([...(CODINGS.get(vocabulary) ?? [])], name).toEqual(['token'])
+    }
+  })
+
+  it('declares an encoding on exactly the fields that name a vocabulary', () => {
+    for (const field of fields) {
+      const wire = field.wire_value
+      expect(
+        wire?.encoding === null || wire?.encoding === undefined,
+        field.key
+      ).toBe(!wire?.vocabulary)
+      if (wire?.encoding) {
+        expect(['int', 'token'], field.key).toContain(wire.encoding)
+      }
+    }
   })
 
   it('labels every option in Chinese or as a proper name, never as a bare code', () => {
