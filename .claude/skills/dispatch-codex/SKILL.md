@@ -112,7 +112,14 @@ concurrently over overlapping paths.
 
 A follow-up fix can resume the same thread with its context intact:
 `codex exec resume --last` (plus the same fences — run it through your own judgment, there
-is no wrapper for it yet).
+is no wrapper for it yet). The resume subcommand's flag set is narrower than `exec`'s
+(measured on codex-cli 0.153.4, a lost hour): `--cd`, `--sandbox`, `--add-dir` and
+`--color` are hard errors there. Express the fences as `-c` overrides instead —
+`-c 'sandbox_mode="workspace-write"'` plus the same `mcp_servers={}` / `plugins={}` /
+`shell_environment_policy.inherit="core"` — run it from the repo root (`--last` matches
+sessions by cwd), and skip `--add-dir` for the scratchpad: `/tmp` is already writable
+under workspace-write. `--json`, `-o` and `--ignore-rules` work as in `exec`; the prompt
+reads from stdin via `-`.
 
 ## 3. Reading the result
 
