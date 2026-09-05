@@ -1,5 +1,108 @@
 # @nextmoe/edit-ui-vue
 
+## 0.3.0
+
+### Minor Changes
+
+- 5e359b5: Surface merge conflicts and staleness on a proposal. `ProposalCard` accepts
+  `currentRevisionSeq` and `conflictKeys` (the engine's `ConflictError.Keys`) and
+  distinguishes the two states the engine distinguishes: a patch whose own fields
+  drifted is a hard conflict the merge will refuse, while a proposal merely behind
+  the head revision is a warning that still merges. `ReviewQueue` passes both
+  through with `currentRevisionSeqFor` / `conflictKeysFor`.
+- a00f6db: Turn a rejected patch into field-level messages. `parseEditProblem` reads the
+  API's RFC 7807 body into `{ fields, form }` ready for `SchemaForm`'s `errors`
+  prop, accepting both JSON-pointer prefixes the server emits (`/patch/<key>` for
+  unknown, locked and conflicting fields; a bare `/<key>` for validation failures)
+  and falling back to the top-level `detail` for a permission refusal, which comes
+  back with an empty `errors` array.
+
+  `EditFieldConfig` also gains `allowAdd` / `allowRemove`: the roster field's apply
+  step holds no INSERT and no DELETE, so a row added in the form is refused at
+  merge, and the button should not be there.
+
+- f04d871: Editable per-image metadata. `EditFieldConfig.itemColumns` describes the
+  attributes one image carries — the catalog's covers are
+  `{image_hash, kind, portrait_pinned, sexual, violence}` and its screenshots
+  `{image_hash, caption, sexual, violence}`, none of which had any UI — and the
+  image field gains a per-item editor plus badges on the tile so a set flag is
+  visible without opening anything. `summarizeColumns` renders a column set as
+  short labels for that badge row.
+- 215db8c: First-class suppression. A row in a multi-source list can be hidden with a
+  toggle on the row itself; the `.suppressed` companion field is maintained for
+  the user instead of being rendered as a list of identity keys to hand-type.
+
+  - `EditFieldConfig.identityKey` supplies the server's key format for one row,
+    and is itself the signal that pairs the companion field — no separate
+    `pairsSuppressed` flag needed.
+  - `toggleSuppressedKey` / `normalizeSuppressedKeys` keep the set ascending and
+    unique, comparing by code point because the server compares UTF-8 bytes and
+    JavaScript's default sort disagrees above the BMP.
+  - `cleanEditText` ports the server's text canonicalisation so a key built in the
+    browser matches the one the server derives.
+
+- 923d2e2: Stop scalar list editors from destroying object-shaped list fields, and send the
+  JSON types the catalog editing engine actually demands.
+
+  - `guardEditControl` downgrades `string-list` / `number-list` to a read-only view
+    when the value holds objects. The wire schema says `list` + `items` for both
+    `["https://…"]` and `[{lang, title, latin, kind}]`, so no static mapping can
+    tell them apart; the previous default stringified rows to `"[object Object]"`
+    and emitted that back as the field's new value.
+  - `EditObjectColumn` gains `type` (`string` | `integer` | `number` | `boolean`),
+    `required`, and entity-picker columns. `buildEditRow` / `buildEditRows` coerce
+    each column to its declared JSON type and drop every key the columns do not
+    declare, so a row survives the engine's `asObject` and `objInt` checks.
+  - `EditSchemaField` gains `max_elements` and `max_suppressed`; list editors show
+    the count and stop at the cap instead of failing on the server.
+  - `SchemaField` / `SchemaForm` accept `errors` and render field-level messages,
+    including the row issues the object-list editor reports.
+  - `resolveControl` infers `object-list` from configured `columns` and
+    `entity-picker` from a configured `searchEntities`.
+
+- a086d18: `SchemaForm` no longer lets a filled-in form vanish on a stray navigation. While
+  the patch is non-empty it holds a `beforeunload` listener (`warnOnLeave`, on by
+  default, and dropped on unmount), exposes `reset()` for after a successful
+  submit, and renders a `formErrors` banner for the rejections that name no field —
+  a permission refusal comes back with an empty `errors` array, so it has nowhere
+  else to go.
+
+  `useUnsavedGuard` is exported for a site that wants the same behaviour around its
+  own submit button.
+
+- 0af038f: Consume the spec 2.8.0 value shapes. The edit API's schema has two faces — the
+  actor-caps face knows what you may change, `GET /v2/catalog/schemas/{object}`
+  knows what a value looks like — and `mergeSchemaFaces` joins them onto
+  `EditSchemaField`, which gains `vocabulary`, `encoding`, `base`, `nullable` and
+  `element`. `SchemaForm`/`SchemaField` accept a `vocabularies` map (the
+  `GET /v2/vocabularies` answer): an enum field whose config declares no options
+  derives them from its vocabulary, `encoding: 'int'` as base plus the token's
+  published-order index and `encoding: 'token'` as the token itself, instead of
+  degrading to read-only. A vocabulary field that arrives without an encoding —
+  the caps face alone, or a server below spec 2.8.0 — stays read-only rather than
+  guessing itself into a 422. The schema's `nullable` now also reaches the field
+  buffer when the config is silent.
+
+  `parseEditProblem` translates the reason codes whose detail adds nothing beyond
+  the key (`IMMUTABLE`, `NOT_PERMITTED`, `INCONSISTENT_WITH`) into Chinese;
+  validation reasons keep the server's specific prose.
+
+### Patch Changes
+
+- 827882f: A work title with no language now gets an identity key, so its suppression
+  toggle appears at all. The row that reaches `identityKey` has had every blank
+  optional key dropped for the wire payload, but the column is `NOT NULL` and
+  stores `""`, so the key keeps an empty segment — rejecting the missing `lang`
+  left exactly the alias rows unsuppressible. A suppressed row also carries a
+  「已隐藏」chip: dimming alone did not say why the row was inert.
+- Updated dependencies [a00f6db]
+- Updated dependencies [f04d871]
+- Updated dependencies [215db8c]
+- Updated dependencies [88c6d8c]
+- Updated dependencies [923d2e2]
+- Updated dependencies [0af038f]
+  - @nextmoe/edit-ui-core@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
