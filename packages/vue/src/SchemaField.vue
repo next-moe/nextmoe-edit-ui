@@ -12,6 +12,7 @@ import {
   KunTextarea
 } from '@kungal/ui-vue'
 import {
+  applyVocabularyOptions,
   cloneEditValue,
   editValueEqual,
   guardEditControl,
@@ -26,11 +27,17 @@ import ImageField from './ImageField.vue'
 import ObjectListField from './ObjectListField.vue'
 import SourceContext from './SourceContext.vue'
 import { useFieldBuffer } from './useFieldBuffer'
-import type { EditFieldConfig, EditRowIssue, EditSchemaField } from './types'
+import type {
+  EditFieldConfig,
+  EditRowIssue,
+  EditSchemaField,
+  EditVocabularyMap
+} from './types'
 
 const props = defineProps<{
   field: EditSchemaField
   config?: EditFieldConfig
+  vocabularies?: EditVocabularyMap
   modelValue: unknown
   baseline?: unknown
   suppressed?: unknown
@@ -43,11 +50,22 @@ const emit = defineEmits<{
   'update:suppressed': [value: unknown]
 }>()
 
+// A schema-declared vocabulary can turn a config-less enum into a select, so
+// the merged config, not the raw prop, is what every consumer below sees.
+const cfg = computed(() =>
+  applyVocabularyOptions(
+    props.field,
+    props.config,
+    props.vocabularies,
+    props.modelValue
+  )
+)
+
 const guarded = computed(() =>
-  guardEditControl(resolveControl(props.field, props.config), props.modelValue)
+  guardEditControl(resolveControl(props.field, cfg.value), props.modelValue)
 )
 const control = computed(() => guarded.value.control)
-const label = computed(() => props.config?.label ?? props.field.key)
+const label = computed(() => cfg.value?.label ?? props.field.key)
 
 // Forward compatibility: the edit engine may start sending a control the
 // installed package predates. Render it read-only rather than falling through
@@ -70,7 +88,7 @@ const readonlyReason = computed(() => {
   }
   if (
     (control.value === 'image' || control.value === 'image-list') &&
-    !props.config?.uploadImage
+    !cfg.value?.uploadImage
   ) {
     return '本期只读'
   }
@@ -107,7 +125,7 @@ const isDirty = computed(
 const revert = () => emit('update:modelValue', cloneEditValue(props.baseline))
 
 const contextItems = computed(() =>
-  props.config?.contextItems ? props.config.contextItems(props.modelValue) : []
+  cfg.value?.contextItems ? cfg.value.contextItems(props.modelValue) : []
 )
 
 const {
@@ -123,11 +141,11 @@ const {
   control,
   () => props.modelValue,
   (value) => emit('update:modelValue', value),
-  () => props.config?.nullable
+  () => cfg.value?.nullable
 )
 
 const selectOptions = computed(() =>
-  (props.config?.options ?? []).map((o) => ({ value: o.value, label: o.label }))
+  (cfg.value?.options ?? []).map((o) => ({ value: o.value, label: o.label }))
 )
 
 // Cast here, not in the template. `:model-value="modelValue as string | number
@@ -154,16 +172,16 @@ const selectValue = computed(() => props.modelValue as string | number | null)
     </div>
 
     <p
-      v-if="config?.description && control !== 'switch'"
+      v-if="cfg?.description && control !== 'switch'"
       class="text-default-400 text-xs"
     >
-      {{ config.description }}
+      {{ cfg.description }}
     </p>
 
-    <template v-if="config?.component">
+    <template v-if="cfg?.component">
       <component
-        :is="config.component"
-        v-bind="config.fieldProps"
+        :is="cfg.component"
+        v-bind="cfg.fieldProps"
         :model-value="modelValue"
         :suppressed="suppressed"
         :disabled="!editable"
@@ -179,34 +197,32 @@ const selectValue = computed(() => props.modelValue as string | number | null)
     <template
       v-else-if="
         control === 'entity-kind-picker' &&
-        config?.searchEntities &&
-        config?.entityIdKey &&
-        config?.entityKinds
+        cfg?.searchEntities &&
+        cfg?.entityIdKey &&
+        cfg?.entityKinds
       "
     >
       <EntityKindPicker
         :model-value="modelValue"
         :disabled="!editable"
-        :placeholder="config?.placeholder"
-        :id-key="config.entityIdKey"
-        :kind-options="config.entityKinds"
-        :default-kind="
-          config?.entityDefaultKind ?? config.entityKinds[0]!.value
-        "
-        :search="config.searchEntities"
-        :resolve="config?.resolveEntities"
+        :placeholder="cfg?.placeholder"
+        :id-key="cfg.entityIdKey"
+        :kind-options="cfg.entityKinds"
+        :default-kind="cfg?.entityDefaultKind ?? cfg.entityKinds[0]!.value"
+        :search="cfg.searchEntities"
+        :resolve="cfg?.resolveEntities"
         @update:model-value="(value) => emit('update:modelValue', value)"
       />
     </template>
 
-    <template v-else-if="control === 'entity-picker' && config?.searchEntities">
+    <template v-else-if="control === 'entity-picker' && cfg?.searchEntities">
       <EntityPicker
         :model-value="modelValue"
-        :multiple="config?.multiple"
+        :multiple="cfg?.multiple"
         :disabled="!editable"
-        :placeholder="config?.placeholder"
-        :search="config.searchEntities"
-        :resolve="config?.resolveEntities"
+        :placeholder="cfg?.placeholder"
+        :search="cfg.searchEntities"
+        :resolve="cfg?.resolveEntities"
         @update:model-value="(value) => emit('update:modelValue', value)"
       />
     </template>
@@ -214,7 +230,7 @@ const selectValue = computed(() => props.modelValue as string | number | null)
     <template v-else-if="!editable || !isKnownControl">
       <FieldReadonly
         :model-value="modelValue"
-        :config="config"
+        :config="cfg"
         :control="control"
       />
     </template>
@@ -223,7 +239,7 @@ const selectValue = computed(() => props.modelValue as string | number | null)
       <KunTextarea
         v-if="control === 'textarea'"
         :model-value="textBuffer"
-        :placeholder="config?.placeholder"
+        :placeholder="cfg?.placeholder"
         @update:model-value="emitText"
       />
       <KunSelect
@@ -235,13 +251,13 @@ const selectValue = computed(() => props.modelValue as string | number | null)
       <KunSwitch
         v-else-if="control === 'switch'"
         :model-value="boolBuffer"
-        :label="config?.description ?? ''"
+        :label="cfg?.description ?? ''"
         @update:model-value="emitSwitch"
       />
       <KunTagInput
         v-else-if="control === 'string-list' || control === 'number-list'"
         :model-value="stringList"
-        :placeholder="config?.placeholder ?? '输入后回车添加'"
+        :placeholder="cfg?.placeholder ?? '输入后回车添加'"
         :max-tags="field.max_elements"
         :show-counter="Boolean(field.max_elements)"
         :respect-composition="true"
@@ -250,10 +266,10 @@ const selectValue = computed(() => props.modelValue as string | number | null)
       <ObjectListField
         v-else-if="control === 'object-list'"
         :model-value="modelValue"
-        :config="config"
+        :config="cfg"
         :max="field.max_elements"
         :suppressed="suppressed"
-        :identity-key="config?.identityKey"
+        :identity-key="cfg?.identityKey"
         @update:model-value="(value) => emit('update:modelValue', value)"
         @update:issues="(value) => (rowIssues = value)"
         @update:suppressed="(value) => emit('update:suppressed', value)"
@@ -261,7 +277,7 @@ const selectValue = computed(() => props.modelValue as string | number | null)
       <ImageField
         v-else-if="control === 'image' || control === 'image-list'"
         :model-value="modelValue"
-        :config="config"
+        :config="cfg"
         :multiple="control === 'image-list'"
         @update:model-value="(value) => emit('update:modelValue', value)"
       />
@@ -269,14 +285,14 @@ const selectValue = computed(() => props.modelValue as string | number | null)
         v-else-if="control === 'date'"
         :model-value="(modelValue as string | null) ?? null"
         mode="single"
-        :placeholder="config?.placeholder"
+        :placeholder="cfg?.placeholder"
         @update:model-value="emitDate"
       />
       <KunInput
         v-else
         :model-value="textBuffer"
         :type="control === 'number' ? 'number' : 'text'"
-        :placeholder="config?.placeholder"
+        :placeholder="cfg?.placeholder"
         @update:model-value="emitText"
       />
     </template>
@@ -293,8 +309,8 @@ const selectValue = computed(() => props.modelValue as string | number | null)
     </ul>
 
     <SourceContext
-      v-if="config?.contextNote"
-      :note="config.contextNote"
+      v-if="cfg?.contextNote"
+      :note="cfg.contextNote"
       :items="contextItems"
     />
   </div>

@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SchemaField from './SchemaField.vue'
-import type { EditControl, EditFieldConfig, EditSchemaField } from './types'
+import type {
+  EditControl,
+  EditFieldConfig,
+  EditSchemaField,
+  EditVocabularyMap
+} from './types'
 
 const field = (key: string): EditSchemaField => ({
   key,
@@ -61,5 +66,61 @@ describe('SchemaField — unknown control', () => {
 
     expect(w.find('input').exists()).toBe(true)
     expect(w.find('input').element.value).toBe('hello')
+  })
+})
+
+const VOCABULARIES: EditVocabularyMap = {
+  gender: {
+    name: 'gender',
+    closed: true,
+    values: [
+      { value: 'male', display_name: 'Male' },
+      { value: 'female', display_name: 'Female' },
+      { value: 'other', display_name: 'Other' }
+    ]
+  }
+}
+
+describe('SchemaField — schema-declared vocabulary', () => {
+  const enumField = (extra?: Partial<EditSchemaField>): EditSchemaField => ({
+    ...field('catalog.character.gender'),
+    kind: 'enum',
+    ...extra
+  })
+
+  it('renders a select from the vocabulary when no config exists', () => {
+    const w = mount(SchemaField, {
+      props: {
+        field: enumField({ vocabulary: 'gender', base: 1 }),
+        vocabularies: VOCABULARIES,
+        modelValue: 2
+      }
+    })
+    expect(w.text()).not.toContain('本期只读')
+    expect(w.text()).toContain('Female')
+  })
+
+  it('stays read-only when the vocabulary is not in the map', () => {
+    const w = mount(SchemaField, {
+      props: {
+        field: enumField({ vocabulary: 'unheard_of', base: 0 }),
+        vocabularies: VOCABULARIES,
+        modelValue: 2
+      }
+    })
+    expect(w.text()).toContain('本期只读')
+  })
+
+  // A null value on a base-0 field leaves integer-vs-token coding undecidable;
+  // guessing wrong submits a 422, so the field must not offer an editor.
+  it('stays read-only when the coding is undecidable', () => {
+    const w = mount(SchemaField, {
+      props: {
+        field: enumField({ vocabulary: 'gender', base: 0 }),
+        vocabularies: VOCABULARIES,
+        modelValue: null
+      }
+    })
+    expect(w.text()).toContain('本期只读')
   })
 })

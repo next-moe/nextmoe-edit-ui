@@ -10,11 +10,28 @@ export type {
   EditProposal,
   EditProposalStatus,
   EditRevision,
+  EditSchemaElement,
+  EditSchemaElementMember,
   EditSchemaField,
   EditSelectOption,
   EditUser,
   ImageDiffEntry
 } from './types'
+
+export {
+  applyVocabularyOptions,
+  fieldVocabularyCoding,
+  fieldVocabularyOptions,
+  mergeSchemaFaces,
+  vocabularyOptions
+} from './schema'
+export type {
+  EditSchemaValueField,
+  EditVocabulary,
+  EditVocabularyCoding,
+  EditVocabularyMap,
+  EditVocabularyValue
+} from './schema'
 
 export {
   cloneEditValue,

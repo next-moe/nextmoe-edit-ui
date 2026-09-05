@@ -21,7 +21,7 @@ describe('parseEditProblem', () => {
 
     expect(parsed.fields).toEqual({
       'catalog.work.titles': ['element 0: title must not be empty'],
-      'catalog.work.links': ['is locked']
+      'catalog.work.links': ['该字段已锁定，不能修改']
     })
     expect(parsed.form).toEqual([])
   })
@@ -35,6 +35,33 @@ describe('parseEditProblem', () => {
       ]
     })
     expect(Object.keys(parsed.fields)).toEqual(['a', 'b'])
+  })
+
+  it('translates the reasons whose detail adds nothing beyond the key', () => {
+    const parsed = parseEditProblem({
+      errors: [
+        {
+          pointer: '/patch/a',
+          reason: 'NOT_PERMITTED',
+          detail: 'editing: not allowed to propose field "a"'
+        },
+        {
+          pointer: '/patch/b',
+          reason: 'INCONSISTENT_WITH',
+          detail: 'another revision changed this key since the proposal was written'
+        },
+        {
+          pointer: '/patch/c',
+          reason: 'UNKNOWN_VALUE',
+          detail: 'editing: field "c": unknown field'
+        }
+      ]
+    })
+    expect(parsed.fields).toEqual({
+      a: ['没有修改该字段的权限'],
+      b: ['该字段在提案提交后已被其他修订修改，请基于最新版本重试'],
+      c: ['unknown field']
+    })
   })
 
   // A permission refusal arrives with errors: [] and the key only in detail.

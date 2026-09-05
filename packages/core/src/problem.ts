@@ -26,13 +26,27 @@ export interface EditProblemMessages {
 // one shown on the form.
 const FIELD_KEY = /^\/(?:patch\/|set\/)?(.+)$/
 
+// Only the classes whose detail adds nothing beyond the key are translated.
+// UNKNOWN_VALUE stays on the server prose: it covers both unknown-field and
+// validation errors, and there the detail is the actual content.
+const REASON_MESSAGE: Record<string, string> = {
+  IMMUTABLE: '该字段已锁定，不能修改',
+  NOT_PERMITTED: '没有修改该字段的权限',
+  INCONSISTENT_WITH: '该字段在提案提交后已被其他修订修改，请基于最新版本重试'
+}
+
 // Two shapes carry the same key: `field "k": <reason>` for a validation
 // failure and `field "k" is locked` with no colon. Stripping only the first
 // left "field \"…\" is locked" on the message under the field's own label.
-const messageOf = (error: EditProblemFieldError): string =>
-  (error.detail ?? error.reason ?? '')
+const messageOf = (error: EditProblemFieldError): string => {
+  const mapped = error.reason ? REASON_MESSAGE[error.reason] : undefined
+  if (mapped) {
+    return mapped
+  }
+  return (error.detail ?? error.reason ?? '')
     .replace(/^editing:\s*/, '')
     .replace(/^field "[^"]*"(?::\s*|\s+)/, '')
+}
 
 export const parseEditProblem = (problem: unknown): EditProblemMessages => {
   const out: EditProblemMessages = { fields: {}, form: [] }
@@ -53,8 +67,10 @@ export const parseEditProblem = (problem: unknown): EditProblemMessages => {
       out.form.push(message)
     }
   }
-  // PermissionError comes back with an empty errors array, so its only carrier
-  // is the top-level detail; without this the refusal renders as nothing at all.
+  // A field-level PermissionError now carries a /patch/<key> pointer, but a
+  // not-the-proposer refusal still arrives with no field errors at all, so the
+  // top-level detail stays the fallback; without it that refusal renders as
+  // nothing.
   if (!out.form.length && !Object.keys(out.fields).length && detail) {
     out.form.push(detail.replace(/^editing: /, ''))
   }

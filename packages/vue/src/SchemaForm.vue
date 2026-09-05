@@ -4,13 +4,18 @@ import { KunBadge, KunInfo, KunTab } from '@kungal/ui-vue'
 import { cloneEditValue, editValueEqual } from '@nextmoe/edit-ui-core'
 import SchemaField from './SchemaField.vue'
 import { useUnsavedGuard } from './useUnsavedGuard'
-import type { EditFieldConfigMap, EditSchemaField } from './types'
+import type {
+  EditFieldConfigMap,
+  EditSchemaField,
+  EditVocabularyMap
+} from './types'
 
 const props = withDefaults(
   defineProps<{
     fields: EditSchemaField[]
     values: Record<string, unknown>
     config: EditFieldConfigMap
+    vocabularies?: EditVocabularyMap
     groupOrder?: string[]
     disabled?: boolean
     layout?: 'stack' | 'tabs'
@@ -186,6 +191,7 @@ watch(
 const fieldProps = (field: EditSchemaField) => ({
   field,
   config: props.config[field.key],
+  vocabularies: props.vocabularies,
   baseline: props.values[field.key],
   suppressed: pairsSuppressed(field.key)
     ? working[companionKey(field.key)]

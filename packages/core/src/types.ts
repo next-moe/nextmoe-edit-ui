@@ -1,3 +1,19 @@
+export interface EditSchemaElementMember {
+  key: string
+  type: string
+  vocabulary?: string
+  base?: number
+  nullable?: boolean
+}
+
+export interface EditSchemaElement {
+  type: string
+  members?: EditSchemaElementMember[]
+}
+
+// The last four fields never arrive on the actor-caps schema face; they live on
+// GET /v2/catalog/schemas/{object} and are filled in by mergeSchemaFaces. A
+// field object built from the caps response alone legitimately lacks them.
 export interface EditSchemaField {
   key: string
   kind: string
@@ -9,6 +25,10 @@ export interface EditSchemaField {
   would_automerge: boolean
   max_elements?: number
   max_suppressed?: number
+  vocabulary?: string
+  base?: number
+  nullable?: boolean
+  element?: EditSchemaElement | null
 }
 
 // The union is derived from the array, not written twice: `isEditControl` is
