@@ -137,12 +137,14 @@ const PLATFORM_LABEL: Record<string, string> = {
   xxs: 'Xbox Series X/S'
 }
 
+// The published vocabulary's order, wiu-before-win included: vocab.spec.ts
+// asserts this list against the census, so a private sort here fails the suite.
 const PLATFORM_CODES = [
   'and', 'bdp', 'dos', 'drc', 'dvd', 'fm7', 'fmt', 'gba', 'gbc', 'ios',
   'lin', 'mac', 'mob', 'msx', 'n3d', 'nds', 'nes', 'oth', 'p88', 'p98',
   'pce', 'pcf', 'ps1', 'ps2', 'ps3', 'ps4', 'ps5', 'psp', 'psv', 'sat',
-  'scd', 'sfc', 'smd', 'sw2', 'swi', 'tdo', 'vnd', 'web', 'wii', 'win',
-  'wiu', 'x1s', 'x68', 'xb1', 'xb3', 'xbo', 'xxs'
+  'scd', 'sfc', 'smd', 'sw2', 'swi', 'tdo', 'vnd', 'web', 'wii', 'wiu',
+  'win', 'x1s', 'x68', 'xb1', 'xb3', 'xbo', 'xxs'
 ] as const
 
 export const OLANG_OPTIONS: EditSelectOption[] = langOptions(OLANG_CODES)

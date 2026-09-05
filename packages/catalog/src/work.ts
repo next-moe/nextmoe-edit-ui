@@ -26,13 +26,18 @@ import {
 } from './vocab'
 import { workCoverConfig, workScreenshotConfig } from './work_media'
 
-const tagIds = (options: CatalogPresetOptions): EditFieldConfig => {
-  const search = options.searchEntities?.tag
-  const resolve = options.resolveEntities?.tag
-  const description = '最多 200 个。'
+const idList = (
+  options: CatalogPresetOptions,
+  ref: 'tag' | 'engine' | 'series',
+  label: string,
+  description: string,
+  fallbackDescription = description
+): EditFieldConfig => {
+  const search = options.searchEntities?.[ref]
+  const resolve = options.resolveEntities?.[ref]
   if (search) {
     return {
-      label: '标签',
+      label,
       group: GROUP.rel,
       description,
       control: 'entity-picker',
@@ -42,9 +47,9 @@ const tagIds = (options: CatalogPresetOptions): EditFieldConfig => {
     }
   }
   return {
-    label: '标签',
+    label,
     group: GROUP.rel,
-    description,
+    description: fallbackDescription,
     control: 'number-list'
   }
 }
@@ -73,11 +78,16 @@ const titles = (): EditFieldConfig => ({
 const credits = (options: CatalogPresetOptions): EditFieldConfig => ({
   label: '制作人员',
   group: GROUP.rel,
-  description:
-    '最多 500 条。职责没有检索接口，请填写 catalog_role 的正整数 id。不关联角色时不要填写角色。',
+  description: options.searchEntities?.role
+    ? '最多 500 条。不关联角色时不要填写角色。'
+    : '最多 500 条。职责请填写 catalog_role 的正整数 id。不关联角色时不要填写角色。',
   identityKey: workCreditIdentityKey,
   columns: [
-    idColumn('role_id', '职责', true, { width: 'w-28' }),
+    idColumn('role_id', '职责', true, {
+      search: options.searchEntities?.role,
+      resolve: options.resolveEntities?.role,
+      width: 'w-40'
+    }),
     idColumn('credit_name_id', '职人', true, {
       search: options.searchEntities?.credit_name,
       resolve: options.resolveEntities?.credit_name
@@ -142,12 +152,13 @@ export const workPreset = (
     group: GROUP.basic,
     control: 'switch'
   },
-  'catalog.work.engine_ids': {
-    label: '引擎',
-    group: GROUP.rel,
-    control: 'number-list',
-    description: '没有按名称搜索，请填写引擎 id。最多 200 个。'
-  },
+  'catalog.work.engine_ids': idList(
+    options,
+    'engine',
+    '引擎',
+    '最多 200 个。',
+    '请填写引擎 id。最多 200 个。'
+  ),
   'catalog.work.intros': introList(),
   'catalog.work.labels': labels(options),
   'catalog.work.links': urlList(),
@@ -159,13 +170,14 @@ export const workPreset = (
   'catalog.work.roster': roster(options),
   'catalog.work.roster.suppressed': suppressed('登场角色', GROUP.rel),
   'catalog.work.screenshots': workScreenshotConfig(options),
-  'catalog.work.series_ids': {
-    label: '系列',
-    group: GROUP.rel,
-    control: 'number-list',
-    description: '没有按名称搜索。仅可填写自建系列的 id，最多 200 个。'
-  },
-  'catalog.work.tag_ids': tagIds(options),
+  'catalog.work.series_ids': idList(
+    options,
+    'series',
+    '系列',
+    '仅可关联自建系列，最多 200 个。',
+    '仅可填写自建系列的 id，最多 200 个。'
+  ),
+  'catalog.work.tag_ids': idList(options, 'tag', '标签', '最多 200 个。'),
   'catalog.work.titles': titles(),
   'catalog.work.titles.suppressed': suppressed('标题', GROUP.name)
 })

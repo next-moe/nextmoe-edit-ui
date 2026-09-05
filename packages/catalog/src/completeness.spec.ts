@@ -82,10 +82,15 @@ describe('catalogConfig completeness', () => {
           expect(config!.options, field.key).toBeUndefined()
           continue
         }
+        // Set comparison, not order: the census enum is the validator's
+        // accepted-set order, which contradicts the published vocabulary order
+        // at platform's win/wiu. The tables follow the published order, and
+        // vocab.spec.ts asserts that order per table.
+        const values = config!.options?.map((option) => option.value)
         expect(
-          config!.options?.map((option) => option.value),
+          values && [...values].sort(),
           field.key
-        ).toEqual(field.enum)
+        ).toEqual([...field.enum].sort())
       }
     }
   })
