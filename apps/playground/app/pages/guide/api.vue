@@ -19,6 +19,12 @@ interface EditSchemaField {
   can_propose: boolean
   can_review: boolean
   would_automerge: boolean
+  // 以下来自另一张脸 GET /v2/catalog/schemas/{object}，
+  // 用 mergeSchemaFaces(capsFields, valueFields) 合并进来
+  vocabulary?: string   // /v2/vocabularies 里的词表名
+  base?: number         // 整数编码字段：码 = base + 词表发布序下标
+  nullable?: boolean    // null 会清除已存的值
+  element?: EditSchemaElement | null
 }`
 
 const formProps = `<EditSchemaForm
@@ -43,6 +49,11 @@ const formApi = [
     'config',
     'EditFieldConfigMap',
     '必填。标签、控件、分组，以及注入的函数。'
+  ],
+  [
+    'vocabularies',
+    'EditVocabularyMap',
+    '可选。GET /v2/vocabularies 的结果。config 没写 options 的枚举字段会用它推导选项（config 写了则以 config 为准）；不传时这类字段降级为只读。'
   ],
   [
     'group-order',
