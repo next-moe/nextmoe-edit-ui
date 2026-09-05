@@ -30,8 +30,10 @@ override.
 
 **The sibling repository `nextmoe-infra` is unreadable from here.** This matters more in this
 repo than anywhere else: every question about "what does the editing API actually send" has its
-answer in a repo grok cannot open. Either inline the facts in the task book, or run a separate
-read-only dispatch *inside* `nextmoe-infra` first and hand its report over as an input file.
+answer in a repo grok cannot open. Either inline the facts in the task book, run a separate
+read-only dispatch *inside* `nextmoe-infra` first and hand its report over as an input file, or
+dispatch codex instead (`dispatch-codex` in this directory's sibling), which has no read fence
+at all — with the exposure that trade carries; see that skill's §1.
 
 **grok has no shell**, so it cannot run `pnpm build`, `typecheck`, `test`, `lint`, or `git`.
 Never ask. Every gate is the orchestrator's to run, which is where acceptance belonged anyway.
