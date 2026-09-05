@@ -28,6 +28,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # npm >= 11.5.1 is required for OIDC trusted publishing + auto-provenance.
+      # OIDC can only publish a package that already exists on npm with a trusted
+      # publisher configured, so a package's first ever version must be published
+      # by hand (pnpm publish, which rewrites workspace:*) and the trusted
+      # publisher set on it afterwards. edit-ui-catalog missed the 0.3.0 run for
+      # exactly this: ENEEDAUTH on a name npm had never heard of.
       - run: npm install -g npm@latest
 
       # No "Version Packages" PR: when a push to main carries changesets, apply
@@ -50,10 +55,16 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "ci: release packages [skip ci]"
-          git push origin "HEAD:${GITHUB_REF_NAME}"   # commit the bump back to main
+          git commit -m "ci: release packages [skip ci]"   # tags land on this commit
 
+          # Publish before pushing the bump. The 0.3.0 run pushed first, npm
+          # refused one package, and main was left carrying a version nothing
+          # had published with its changesets already consumed — unrepeatable.
+          # This way a failed publish leaves main untouched and a re-run redoes
+          # the whole release; changeset publish skips versions already on npm.
           pnpm ci:publish      # build packages + changeset publish (OIDC + provenance)
+
+          git push origin "HEAD:${GITHUB_REF_NAME}"
           git push origin --tags
 
           echo "released=true" >> "$GITHUB_OUTPUT"
