@@ -17,6 +17,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/core/package.json     packages/core/package.json
 COPY packages/vue/package.json      packages/vue/package.json
 COPY packages/nuxt/package.json     packages/nuxt/package.json
+COPY packages/catalog/package.json  packages/catalog/package.json
 COPY apps/playground/package.json   apps/playground/package.json
 # No --ignore-scripts here (unlike the usual recipe): vue-demi's postinstall
 # rewrites its shim to the installed Vue major, and skipping it leaves
@@ -33,9 +34,12 @@ COPY packages packages
 COPY apps/playground apps/playground
 # core (tsup) + vue (vite) must be built before the site: the Nuxt module
 # imports EDIT_UI_COMPONENT_NAMES from the vue package's dist at config time.
-# The nuxt package ships raw TS and needs no build.
+# catalog too — the demo page imports its presets, and a package missing from
+# this list fails as a rolldown resolve error in `nuxt build`, not as a missing
+# dependency. The nuxt package ships raw TS and needs no build.
 RUN pnpm --filter @nextmoe/edit-ui-core build \
  && pnpm --filter @nextmoe/edit-ui-vue build \
+ && pnpm --filter @nextmoe/edit-ui-catalog build \
  && pnpm --filter @nextmoe/edit-ui-playground build
 
 # ---- run: just Node + the self-contained .output ----
