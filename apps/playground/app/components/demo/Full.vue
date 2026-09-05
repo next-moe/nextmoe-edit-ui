@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { config, fields, groupOrder, values } from '~/fixtures'
+import { config, fields, groupOrder, values, vocabularies } from '~/fixtures'
 
 const layout = ref<'stack' | 'tabs'>('stack')
 const readOnly = ref(false)
@@ -24,6 +24,7 @@ const layoutItems = [
         :fields="fields"
         :values="values"
         :config="config"
+        :vocabularies="vocabularies"
         :group-order="groupOrder"
         :layout="layout"
         :tabbed-groups="['关系']"

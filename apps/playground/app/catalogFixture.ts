@@ -1,4 +1,9 @@
-import type { EditSchemaField } from '@nextmoe/edit-ui-core'
+import { mergeSchemaFaces } from '@nextmoe/edit-ui-core'
+import type {
+  EditSchemaField,
+  EditSchemaValueField,
+  EditVocabularyMap
+} from '@nextmoe/edit-ui-core'
 
 const base = {
   locked: false,
@@ -30,6 +35,130 @@ export const workFields: EditSchemaField[] = [
   { key: 'catalog.work.covers', kind: 'list', diff_hint: 'image', max_elements: 200, ...base },
   { key: 'catalog.work.screenshots', kind: 'list', diff_hint: 'image', max_elements: 200, ...base }
 ]
+
+// The other face: GET /v2/catalog/schemas/work (spec 2.6.0), which knows the
+// value shapes but no actor caps. Defaults (vocabulary "", base 0, nullable
+// false, no element) are omitted here; the wire always sends them.
+export const workValueFields: EditSchemaValueField[] = [
+  { key: 'catalog.work.display_name', field_type: 'text' },
+  { key: 'catalog.work.olang', field_type: 'enum', vocabulary: 'olang' },
+  { key: 'catalog.work.content_rating', field_type: 'enum', vocabulary: 'content_rating' },
+  { key: 'catalog.work.display_nsfw', field_type: 'enum' },
+  {
+    key: 'catalog.work.titles',
+    field_type: 'list',
+    element: {
+      type: 'object',
+      members: [
+        { key: 'lang', type: 'enum', vocabulary: 'olang', nullable: true },
+        { key: 'title', type: 'text' },
+        { key: 'kind', type: 'int', vocabulary: 'title_kind' },
+        { key: 'latin', type: 'text', nullable: true }
+      ]
+    }
+  },
+  { key: 'catalog.work.titles.suppressed', field_type: 'list', element: { type: 'text', members: [] } },
+  {
+    key: 'catalog.work.intros',
+    field_type: 'list',
+    element: {
+      type: 'object',
+      members: [
+        { key: 'lang', type: 'enum', vocabulary: 'intro_lang' },
+        { key: 'intro', type: 'text' }
+      ]
+    }
+  },
+  { key: 'catalog.work.tag_ids', field_type: 'list', element: { type: 'ref', members: [] } },
+  {
+    key: 'catalog.work.labels',
+    field_type: 'list',
+    element: {
+      type: 'object',
+      members: [
+        { key: 'label_id', type: 'ref' },
+        { key: 'kind', type: 'int', vocabulary: 'attribution_role' }
+      ]
+    }
+  },
+  { key: 'catalog.work.engine_ids', field_type: 'list', element: { type: 'ref', members: [] } },
+  { key: 'catalog.work.series_ids', field_type: 'list', element: { type: 'ref', members: [] } },
+  { key: 'catalog.work.links', field_type: 'list', element: { type: 'text', members: [] } },
+  {
+    key: 'catalog.work.roster',
+    field_type: 'list',
+    element: {
+      type: 'object',
+      members: [
+        { key: 'character_id', type: 'ref' },
+        { key: 'kind', type: 'int', vocabulary: 'roster_role' },
+        { key: 'spoiler', type: 'int', vocabulary: 'spoiler' }
+      ]
+    }
+  },
+  { key: 'catalog.work.roster.suppressed', field_type: 'list', element: { type: 'text', members: [] } },
+  {
+    key: 'catalog.work.credits',
+    field_type: 'list',
+    element: {
+      type: 'object',
+      members: [
+        { key: 'role_id', type: 'ref' },
+        { key: 'credit_name_id', type: 'ref' },
+        { key: 'character_id', type: 'ref', nullable: true },
+        { key: 'note', type: 'text', nullable: true }
+      ]
+    }
+  },
+  { key: 'catalog.work.credits.suppressed', field_type: 'list', element: { type: 'text', members: [] } },
+  {
+    key: 'catalog.work.covers',
+    field_type: 'list',
+    element: {
+      type: 'object',
+      members: [
+        { key: 'image_hash', type: 'imagehash' },
+        { key: 'kind', type: 'text', nullable: true },
+        { key: 'portrait_pinned', type: 'bool', nullable: true },
+        { key: 'sexual', type: 'int', vocabulary: 'sexual', nullable: true },
+        { key: 'violence', type: 'int', vocabulary: 'violence', nullable: true }
+      ]
+    }
+  },
+  {
+    key: 'catalog.work.screenshots',
+    field_type: 'list',
+    element: {
+      type: 'object',
+      members: [
+        { key: 'image_hash', type: 'imagehash' },
+        { key: 'caption', type: 'text', nullable: true },
+        { key: 'sexual', type: 'int', vocabulary: 'sexual', nullable: true },
+        { key: 'violence', type: 'int', vocabulary: 'violence', nullable: true }
+      ]
+    }
+  }
+]
+
+export const workSchema: EditSchemaField[] = mergeSchemaFaces(
+  workFields,
+  workValueFields
+)
+
+// A real site passes the whole GET /v2/vocabularies answer; one vocabulary is
+// enough to show the wiring, and the preset's hand-written Chinese tables win
+// over these published English labels anyway.
+export const workVocabularies: EditVocabularyMap = {
+  content_rating: {
+    name: 'content_rating',
+    closed: true,
+    values: [
+      { value: 'all_ages', display_name: 'All ages' },
+      { value: 'sensitive', display_name: 'Sensitive' },
+      { value: 'r18', display_name: 'R18' }
+    ]
+  }
+}
 
 export const workValues: Record<string, unknown> = {
   'catalog.work.display_name': 'ひぐらしのなく頃に',

@@ -2,20 +2,26 @@
 import { computed, ref } from 'vue'
 import { catalogConfig } from '@nextmoe/edit-ui-catalog'
 import { parseEditProblem } from '@nextmoe/edit-ui-vue'
-import { workFields, workValues } from '~/catalogFixture'
+import { workSchema, workValues, workVocabularies } from '~/catalogFixture'
 import { resolveEntities, resolveImage, searchEntities, uploadImage } from '~/fixtures'
 
 const config = catalogConfig('catalog.work', {
   searchEntities: {
     character: searchEntities,
     credit_name: searchEntities,
+    engine: searchEntities,
     label: searchEntities,
+    role: searchEntities,
+    series: searchEntities,
     tag: searchEntities
   },
   resolveEntities: {
     character: resolveEntities,
     credit_name: resolveEntities,
+    engine: resolveEntities,
     label: resolveEntities,
+    role: resolveEntities,
+    series: resolveEntities,
     tag: resolveEntities
   },
   uploadImage,
@@ -49,15 +55,22 @@ const problem = computed(() =>
   rejected.value ? parseEditProblem(rejection) : { fields: {}, form: [] }
 )
 
-const sample = `import { catalogConfig } from '@nextmoe/edit-ui-catalog'
+const sample = `import { mergeSchemaFaces } from '@nextmoe/edit-ui-core'
+import { catalogConfig } from '@nextmoe/edit-ui-catalog'
 
-// fields 与 values 直接来自编辑 API。config 不用手写：
-// 五十个字段的控件、词表、列类型与身份键都已经在预设里。
+// 编辑 API 有两张脸：actor-caps 面知道你能不能改，
+// GET /v2/catalog/schemas/{object} 面知道值长什么样。合并后交给表单。
+const fields = mergeSchemaFaces(capsFields, valueFields)
+
+// config 不用手写：五十个字段的控件、词表、列类型与身份键都已经在预设里。
 const config = catalogConfig('catalog.work', {
-  searchEntities: { character, credit_name, label, tag },
+  searchEntities: { character, credit_name, label, role, engine, series, tag },
   uploadImage,
   resolveImage
-})`
+})
+
+// vocabularies 传 GET /v2/vocabularies 的结果：预设没覆盖的字段
+// （比如引擎新增的）会用词表推导出选项，而不是降级为只读。`
 </script>
 
 <template>
@@ -72,9 +85,10 @@ const config = catalogConfig('catalog.work', {
 
     <KunCard :is-transparent="false" content-class="space-y-4">
       <EditSchemaForm
-        :fields="workFields"
+        :fields="workSchema"
         :values="workValues"
         :config="config"
+        :vocabularies="workVocabularies"
         :group-order="['名称', '基本', '描述', '关系', '媒体']"
         layout="tabs"
         :tabbed-groups="['关系']"

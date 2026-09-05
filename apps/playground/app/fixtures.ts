@@ -4,7 +4,8 @@ import type {
   EditRevision,
   EditSchemaField,
   EditSelectOption,
-  EditUser
+  EditUser,
+  EditVocabularyMap
 } from '@nextmoe/edit-ui-core'
 import type { EditFieldConfigMap } from '@nextmoe/edit-ui-vue'
 
@@ -78,8 +79,21 @@ export const fields: EditSchemaField[] = [
   field('cover', 'imagehash', 'image'),
   field('gallery', 'list', 'image'),
   field('slug', 'text', 'inline', { can_propose: false }),
-  field('holo_intensity', 'text')
+  field('holo_intensity', 'text'),
+  field('region', 'enum', 'inline', { vocabulary: 'region', base: 0 })
 ]
+
+export const vocabularies: EditVocabularyMap = {
+  region: {
+    name: 'region',
+    closed: true,
+    values: [
+      { value: 'jp', display_name: 'Japan' },
+      { value: 'cn', display_name: 'China' },
+      { value: 'us', display_name: 'United States' }
+    ]
+  }
+}
 
 export const config: EditFieldConfigMap = {
   title: {
@@ -189,6 +203,12 @@ export const config: EditFieldConfigMap = {
     // hint before the package catches up. Must degrade to read-only, not throw.
     control: 'holo-slider' as unknown as EditControl,
     description: '未知 control：包应降级为只读展示'
+  },
+  region: {
+    label: '发售地区',
+    group: '前向兼容',
+    description:
+      'config 没写 options：选项由 schema 声明的词表推导，标签是词表发布的英文名'
   }
 }
 
@@ -216,7 +236,8 @@ export const values: Record<string, unknown> = {
     { image_hash: 'shot-c', sort_order: 2 }
   ],
   slug: 'higurashi-no-naku-koro-ni',
-  holo_intensity: { level: 3, curve: 'ease-out' }
+  holo_intensity: { level: 3, curve: 'ease-out' },
+  region: 'jp'
 }
 
 export const users: Record<number, EditUser> = {
