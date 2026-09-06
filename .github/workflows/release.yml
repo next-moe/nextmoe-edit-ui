@@ -33,6 +33,12 @@ jobs:
       # by hand (pnpm publish, which rewrites workspace:*) and the trusted
       # publisher set on it afterwards. edit-ui-catalog missed the 0.3.0 run for
       # exactly this: ENEEDAUTH on a name npm had never heard of.
+      #
+      # A newly created trusted publisher is also allowed to *stage* a publish
+      # and nothing else until "Allowed actions" is ticked for direct publish —
+      # unticked is npm's default. That is what E403 "OIDC permission denied for
+      # this action" means; the token exchange succeeds, so provenance is signed
+      # and only the PUT is refused. edit-ui-catalog lost the 0.4.0 run to it.
       - run: npm install -g npm@latest
 
       # No "Version Packages" PR: when a push to main carries changesets, apply
