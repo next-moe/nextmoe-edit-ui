@@ -1,5 +1,13 @@
 # @nextmoe/edit-ui-nuxt
 
+## 0.4.0
+
+### Patch Changes
+
+- Updated dependencies [0296fe2]
+  - @nextmoe/edit-ui-core@0.4.0
+  - @nextmoe/edit-ui-vue@0.4.0
+
 ## 0.3.0
 
 ### Patch Changes
