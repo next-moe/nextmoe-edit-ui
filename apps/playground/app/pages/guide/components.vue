@@ -8,7 +8,10 @@ useSeoMeta({
 })
 
 const componentList = [
-  ['SchemaForm', '整个表单：分组渲染成区块（堆叠或标签页），抛出 update:patch。'],
+  [
+    'SchemaForm',
+    '整个表单：分组渲染成区块（堆叠或标签页），抛出 update:patch 与 update:valid。'
+  ],
   ['SchemaField', '单个字段；根据 schema 与 config 选出控件。'],
   ['ObjectListField', '若干列类型固定的可增删行。'],
   ['ImageField', '单图或多图上传，支持拖拽排序与置顶标记。'],

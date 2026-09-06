@@ -3,6 +3,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { KunBadge, KunInfo, KunTab } from '@kungal/ui-vue'
 import { cloneEditValue, editValueEqual } from '@nextmoe/edit-ui-core'
 import SchemaField from './SchemaField.vue'
+import { useFormIssues } from './useFormIssues'
 import { useUnsavedGuard } from './useUnsavedGuard'
 import type {
   EditFieldConfigMap,
@@ -29,6 +30,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:patch': [patch: Record<string, unknown>]
+  'update:valid': [valid: boolean]
 }>()
 
 const working = reactive<Record<string, unknown>>({})
@@ -63,6 +65,11 @@ watch(patch, (value) => emit('update:patch', value), { deep: false })
 
 const dirtyCount = computed(() => Object.keys(patch.value).length)
 
+const { setFieldIssues, hasIssues, invalidFields, valid } = useFormIssues(
+  () => props.fields
+)
+watch(valid, (value) => emit('update:valid', value))
+
 const reset = () => {
   for (const field of props.fields) {
     working[field.key] = cloneEditValue(props.values[field.key])
@@ -71,7 +78,7 @@ const reset = () => {
 
 useUnsavedGuard(computed(() => props.warnOnLeave && dirtyCount.value > 0))
 
-defineExpose({ dirtyCount, reset })
+defineExpose({ dirtyCount, reset, valid, invalidFields })
 
 const UNGROUPED = '__ungrouped'
 const SUPPRESSED_SUFFIX = '.suppressed'
@@ -140,20 +147,26 @@ const groupNavs = [
   }
 ]
 
-const dirtyBySection = computed<Record<string, number>>(() => {
+const countBySection = (keys: string[]): Record<string, number> => {
   const counts: Record<string, number> = {}
-  for (const key of Object.keys(patch.value)) {
-    const group = props.config[key]?.group ?? ''
-    counts[tabKey(group)] = (counts[tabKey(group)] ?? 0) + 1
+  for (const key of keys) {
+    const group = tabKey(props.config[key]?.group ?? '')
+    counts[group] = (counts[group] ?? 0) + 1
   }
   return counts
-})
+}
+
+const dirtyBySection = computed(() => countBySection(Object.keys(patch.value)))
+const invalidBySection = computed(() =>
+  countBySection(Object.keys(invalidFields.value))
+)
 
 const tabItems = computed(() =>
   sections.value.map((section) => ({
     value: tabKey(section.name),
     textValue: section.name || '其他',
-    count: dirtyBySection.value[tabKey(section.name)] ?? 0
+    count: dirtyBySection.value[tabKey(section.name)] ?? 0,
+    invalid: Boolean(invalidBySection.value[tabKey(section.name)])
   }))
 )
 
@@ -197,7 +210,8 @@ const fieldProps = (field: EditSchemaField) => ({
     ? working[companionKey(field.key)]
     : undefined,
   errors: props.errors?.[field.key],
-  disabled: props.disabled
+  disabled: props.disabled,
+  'onUpdate:issues': (issues: string[]) => setFieldIssues(field.key, issues)
 })
 
 const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
@@ -207,7 +221,8 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
       props.config[field.key]?.tabLabel ??
       props.config[field.key]?.label ??
       field.key,
-    dirty: field.key in patch.value
+    dirty: field.key in patch.value,
+    invalid: hasIssues(field.key)
   }))
 </script>
 
@@ -244,9 +259,10 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
             v-if="item.count"
             variant="count"
             :count="item.count"
-            color="danger"
+            color="warning"
             size="sm"
           />
+          <KunBadge v-if="item.invalid" variant="dot" color="danger" size="sm" />
         </template>
       </KunTab>
       <div class="min-w-0 flex-1">
@@ -270,6 +286,12 @@ const subTabItems = (section: { name: string; fields: EditSchemaField[] }) =>
                 {{ item.textValue }}
                 <KunBadge
                   v-if="item.dirty"
+                  variant="dot"
+                  color="warning"
+                  size="sm"
+                />
+                <KunBadge
+                  v-if="item.invalid"
                   variant="dot"
                   color="danger"
                   size="sm"

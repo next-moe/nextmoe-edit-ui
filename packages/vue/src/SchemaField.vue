@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   KunButton,
   KunChip,
@@ -48,6 +48,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: unknown]
   'update:suppressed': [value: unknown]
+  'update:issues': [issues: string[]]
 }>()
 
 // A schema-declared vocabulary can turn a config-less enum into a select, so
@@ -100,19 +101,26 @@ const capExceeded = computed(() =>
   overElementCap(props.modelValue, props.field.max_elements)
 )
 
-const messages = computed(() => {
-  const out = [...(props.errors ?? [])]
-  if (guarded.value.reason) {
-    out.push(guarded.value.reason)
-  }
+// Only what this field knows the server will refuse. `errors` is the previous
+// submit's answer and a degraded control is read-only, so neither blocks the
+// next one.
+const issues = computed(() => {
+  const out: string[] = []
   if (capExceeded.value) {
     out.push(`最多 ${props.field.max_elements} 项，当前已超出`)
   }
   for (const issue of rowIssues.value) {
-    out.push(`第 ${issue.index + 1} 行 ${issue.key}：${issue.reason}`)
+    out.push(`第 ${issue.index + 1} 行 ${issue.label}：${issue.reason}`)
   }
   return out
 })
+watch(issues, (value) => emit('update:issues', value), { immediate: true })
+
+const messages = computed(() => [
+  ...(props.errors ?? []),
+  ...(guarded.value.reason ? [guarded.value.reason] : []),
+  ...issues.value
+])
 
 const isDirty = computed(
   () => !editValueEqual(props.baseline ?? null, props.modelValue ?? null)

@@ -1,7 +1,11 @@
 import type { EditColumnType, EditObjectColumn } from './types'
 
+// The label travels with the issue because the only other place it exists is the
+// column list: a message built from `key` alone reads "第 1 行 title：必填" under
+// a header that says "标题".
 export interface EditRowIssue {
   key: string
+  label: string
   reason: string
 }
 
@@ -74,12 +78,14 @@ export const buildEditRow = (
 ): EditRowResult => {
   const row: Record<string, unknown> = {}
   const issues: EditRowIssue[] = []
+  const issue = (column: EditObjectColumn, reason: string) =>
+    issues.push({ key: column.key, label: column.label, reason })
 
   for (const column of columns) {
     const value = raw[column.key]
     if (isBlank(value)) {
       if (column.required) {
-        issues.push({ key: column.key, reason: '必填' })
+        issue(column, '必填')
       }
       continue
     }
@@ -90,13 +96,13 @@ export const buildEditRow = (
     }
     const result = coerce(value, column.type ?? 'string')
     if ('error' in result) {
-      issues.push({ key: column.key, reason: result.error })
+      issue(column, result.error)
       row[column.key] = value
       continue
     }
     if (isBlank(result.value)) {
       if (column.required) {
-        issues.push({ key: column.key, reason: '必填' })
+        issue(column, '必填')
       }
       continue
     }

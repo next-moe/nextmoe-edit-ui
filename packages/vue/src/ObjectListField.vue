@@ -49,24 +49,33 @@ watch(
   { immediate: true }
 )
 
-const issues = ref<(EditRowIssue & { index: number })[]>([])
-
-const issueFor = (index: number, key: string) =>
-  issues.value.find((i) => i.index === index && i.key === key)?.reason
-
 const isEmptyRow = (row: ObjectRow) =>
   !columns.value.some((c) => {
     const v = row[c.key]
     return v === true || (v !== null && v !== undefined && String(v).trim() !== '')
   })
 
-const emitRows = () => {
-  const kept = rows.value.filter((row) => !isEmptyRow(row))
-  const built = buildEditRows(kept, columns.value)
-  issues.value = built.issues
-  emit('update:issues', built.issues)
-  emit('update:modelValue', built.rows)
-}
+// Derived, not assigned on edit: a value that arrives already invalid has to
+// reach the form's submit gate before the user touches anything, and rebuilding
+// it here must not emit update:modelValue — that would mark the field dirty on
+// load, because buildEditRow trims and drops keys.
+const built = computed(() =>
+  buildEditRows(
+    rows.value.filter((row) => !isEmptyRow(row)),
+    columns.value
+  )
+)
+
+const issueFor = (index: number, key: string) =>
+  built.value.issues.find((i) => i.index === index && i.key === key)?.reason
+
+watch(
+  () => built.value.issues,
+  (issues) => emit('update:issues', issues),
+  { immediate: true }
+)
+
+const emitRows = () => emit('update:modelValue', built.value.rows)
 
 const setCell = (row: ObjectRow, key: string, value: unknown) => {
   row[key] = value

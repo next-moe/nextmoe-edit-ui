@@ -36,14 +36,18 @@ describe('buildEditRow', () => {
 
   it('reports a non-numeric integer instead of silently sending it', () => {
     const { row, issues } = buildEditRow({ character_id: '不是数字' }, roster)
-    expect(issues).toEqual([{ key: 'character_id', reason: '必须是整数' }])
+    expect(issues).toEqual([
+      { key: 'character_id', label: '角色', reason: '必须是整数' }
+    ])
     expect(row.character_id).toBe('不是数字')
   })
 
   it('omits blank optional columns and flags blank required ones', () => {
     const { row, issues } = buildEditRow({ character_id: '', kind: '' }, roster)
     expect(row).toEqual({})
-    expect(issues).toEqual([{ key: 'character_id', reason: '必填' }])
+    expect(issues).toEqual([
+      { key: 'character_id', label: '角色', reason: '必填' }
+    ])
   })
 
   it('trims strings and coerces booleans', () => {
@@ -75,7 +79,7 @@ describe('buildEditRows', () => {
     )
     expect(rows).toHaveLength(2)
     expect(issues).toEqual([
-      { index: 1, key: 'character_id', reason: '必须是整数' }
+      { index: 1, key: 'character_id', label: '角色', reason: '必须是整数' }
     ])
   })
 })

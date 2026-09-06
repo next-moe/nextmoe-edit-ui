@@ -91,8 +91,23 @@ describe('ObjectListField', () => {
 
     await w.findAll('input').at(1)!.setValue('1')
     expect(w.emitted('update:issues')?.at(-1)?.[0]).toEqual([
-      { index: 0, key: 'character_id', reason: '必须是整数' }
+      { index: 0, key: 'character_id', label: '角色', reason: '必须是整数' }
     ])
+  })
+
+  // The submit gate has to see a value that was already invalid when the server
+  // sent it, and seeing it must not cost an update:modelValue — buildEditRow
+  // trims and drops keys, so echoing the rebuilt rows would mark the field
+  // dirty on load.
+  it('reports issues on mount without touching the value', () => {
+    const w = mount(ObjectListField, {
+      props: { modelValue: [{ spoiler: 1 }], config: rosterConfig }
+    })
+
+    expect(w.emitted('update:issues')?.at(-1)?.[0]).toEqual([
+      { index: 0, key: 'character_id', label: '角色', reason: '必填' }
+    ])
+    expect(w.emitted('update:modelValue')).toBeUndefined()
   })
 
   it('stops adding rows at the element cap', async () => {

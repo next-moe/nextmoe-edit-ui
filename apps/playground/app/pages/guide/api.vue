@@ -37,6 +37,7 @@ const formProps = `<EditSchemaForm
   layout="tabs"
   :disabled="isReviewer"
   @update:patch="onPatch"
+  @update:valid="(ok) => (valid = ok)"
 />`
 
 const formApi = [
@@ -80,6 +81,16 @@ const formApi = [
     '@update:patch',
     'Record<string, unknown>',
     '每次编辑都会触发：只包含与 values 深比较后确实不同的字段。锁定、已废弃与无提案权限的字段永远不会出现在里面。'
+  ],
+  [
+    '@update:valid',
+    'boolean',
+    '提交闸门：为 false 时表单里至少有一个字段现在提交必被引擎拒绝——对象行缺必填列、列类型不对、超出 max_elements。用它禁用提交按钮，不必等 422。上一次提交的 errors 不算在内，那是给用户改的，不是拦他的。'
+  ],
+  [
+    'ref.valid / ref.invalidFields',
+    'boolean / Record<string, string[]>',
+    '同一个信号的模板引用形态。invalidFields 按字段 key 给出待修的中文消息，可以直接列在提交按钮旁边。另有 dirtyCount 与 reset()。'
   ]
 ]
 

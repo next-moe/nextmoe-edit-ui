@@ -29,6 +29,8 @@ const config = catalogConfig('catalog.work', {
 })
 
 const patch = ref<Record<string, unknown>>({})
+const valid = ref(true)
+const dirty = computed(() => Object.keys(patch.value).length > 0)
 
 // What the API answers when it refuses the patch. Both pointer shapes are real:
 // a validation failure omits the /patch prefix, everything else carries it.
@@ -95,7 +97,17 @@ const config = catalogConfig('catalog.work', {
         :errors="problem.fields"
         :form-errors="problem.form"
         @update:patch="(value) => (patch = value)"
+        @update:valid="(value) => (valid = value)"
       />
+
+      <div class="border-default-200 flex items-center gap-3 border-t pt-3">
+        <KunButton color="primary" :disabled="!valid || !dirty">
+          提交修改
+        </KunButton>
+        <span v-if="!valid" class="text-danger-600 text-xs">
+          有字段现在提交必被引擎拒绝，红点标出了是哪一组。
+        </span>
+      </div>
     </KunCard>
 
     <div class="border-default-200 bg-content1 rounded-lg border p-3">

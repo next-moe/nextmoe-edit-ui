@@ -41,6 +41,7 @@ export const EDIT_UI_COMPONENT_NAMES = [
 export type EditUiComponentName = (typeof EDIT_UI_COMPONENT_NAMES)[number]
 
 export { useFieldBuffer } from './useFieldBuffer'
+export { useFormIssues } from './useFormIssues'
 export { useUnsavedGuard } from './useUnsavedGuard'
 
 export type { EditFieldConfig, EditFieldConfigMap } from './types'

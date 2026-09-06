@@ -18,7 +18,7 @@ under a configurable prefix.
 
 | Export             | What it renders                                                           |
 | ------------------ | ------------------------------------------------------------------------- |
-| `SchemaForm`       | The whole form: groups → sections (stack or tabs), emits `update:patch`.   |
+| `SchemaForm`       | The whole form: groups → sections (stack or tabs); emits `update:patch` and `update:valid`. |
 | `SchemaField`      | One field; picks the control from the schema + config.                     |
 | `ObjectListField`  | Repeating rows of typed columns.                                           |
 | `ImageField`       | Single or multi image upload, drag-sort, pin flag.                         |

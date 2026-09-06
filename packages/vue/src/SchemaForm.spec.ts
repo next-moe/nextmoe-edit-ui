@@ -78,3 +78,58 @@ describe('SchemaForm', () => {
     expect(html).toContain('字段B')
   })
 })
+
+const titles: EditSchemaField = {
+  key: 'catalog.work.titles',
+  kind: 'list',
+  diff_hint: 'items',
+  locked: false,
+  can_propose: true,
+  can_review: false,
+  would_automerge: false
+}
+
+const titlesProps = {
+  fields: [titles],
+  values: { 'catalog.work.titles': [{ lang: 'ja', title: 'ひぐらし' }] },
+  config: {
+    'catalog.work.titles': {
+      label: '标题',
+      columns: [
+        { key: 'lang', label: '语言', required: true },
+        { key: 'title', label: '标题', required: true }
+      ]
+    }
+  }
+}
+
+// Without this the host had no signal at all: the row message rendered, the
+// submit button stayed live, and the user got the engine's English
+// "element 0: title must not be empty" back instead.
+describe('SchemaForm — submit gate', () => {
+  it('goes invalid when a row loses a required column, and back', async () => {
+    const w = mount(SchemaForm, { props: titlesProps })
+    expect(w.vm.valid).toBe(true)
+
+    const title = w.findAll('input').at(1)!
+    await title.setValue('')
+    expect(w.emitted('update:valid')?.at(-1)?.[0]).toBe(false)
+    expect(w.vm.valid).toBe(false)
+    expect(w.vm.invalidFields).toEqual({
+      'catalog.work.titles': ['第 1 行 标题：必填']
+    })
+
+    await w.findAll('input').at(1)!.setValue('ひぐらし')
+    expect(w.emitted('update:valid')?.at(-1)?.[0]).toBe(true)
+    expect(w.vm.invalidFields).toEqual({})
+  })
+
+  // The header says 「标题 *」, so a message naming the wire key sends the user
+  // looking for a column that is not on screen.
+  it('names the row issue by column label, not by key', async () => {
+    const w = mount(SchemaForm, { props: titlesProps })
+    await w.findAll('input').at(1)!.setValue('')
+    expect(w.text()).toContain('第 1 行 标题：必填')
+    expect(w.text()).not.toContain('第 1 行 title')
+  })
+})
