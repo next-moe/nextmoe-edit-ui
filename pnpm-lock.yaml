@@ -95,9 +95,6 @@ importers:
 
   packages/nuxt:
     dependencies:
-      '@kungal/ui-vue':
-        specifier: ^2.26.2
-        version: 2.26.2(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
       '@nextmoe/edit-ui-core':
         specifier: workspace:*
         version: link:../core
@@ -114,6 +111,9 @@ importers:
         specifier: ^3.5.0
         version: 3.5.41(typescript@5.9.3)
     devDependencies:
+      '@kungal/ui-vue':
+        specifier: ^2.32.0
+        version: 2.32.0(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -134,8 +134,8 @@ importers:
         version: 1.15.7
     devDependencies:
       '@kungal/ui-vue':
-        specifier: ^2.26.2
-        version: 2.26.2(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
+        specifier: ^2.32.0
+        version: 2.32.0(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
       '@types/node':
         specifier: ^22.10.0
         version: 22.20.1
@@ -981,9 +981,6 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kungal/ui-core@2.26.2':
-    resolution: {integrity: sha512-2DiDJVD2WxPmAEOAdGBRKzp0/xAmf6Lj6Qx+WReage2vr6mKm0ESZtFhjcJDJBnLWdKNajtl13c8fOEjjomKvQ==}
-
   '@kungal/ui-core@2.32.0':
     resolution: {integrity: sha512-6NdDk4NYvQr0IdkkdfcXmKDCHsW/XCO2n5YYA8WlBFZtgUpTq0BmtcWLb+pM0XuUSc6PCABDgWCxtuo5Q2+8xA==}
 
@@ -997,11 +994,6 @@ packages:
     resolution: {integrity: sha512-bO9VI9tonXyH97VOkQHHsBRvOEujYeMAE8H9DnsfXBO3URHG+J5gRcuRZ0ChMdMqrroT6tmYP09QKkBTRj2faw==}
     peerDependencies:
       tailwindcss: ^4.0.0
-
-  '@kungal/ui-vue@2.26.2':
-    resolution: {integrity: sha512-HOJWso0AvM4Gtgr276h4ovwdl7afJRPm16QY5vM5PHMOYEXYjFsCXb8b39iQG8UmIv92RpijKF2rJ1cvy2hsMA==}
-    peerDependencies:
-      vue: ^3.5.0
 
   '@kungal/ui-vue@2.32.0':
     resolution: {integrity: sha512-4e+kRX1FDaHSa93sEIRmpoMWdrzPC9OkHKE8sGZEoXwKsa52mTMuwZZ+YwOQBWts0BWmgdNHTK2gHbs3zkwNLw==}
@@ -5534,11 +5526,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kungal/ui-core@2.26.2':
-    dependencies:
-      clsx: 2.1.1
-      tailwind-merge: 3.6.0
-
   '@kungal/ui-core@2.32.0':
     dependencies:
       clsx: 2.1.1
@@ -5579,31 +5566,6 @@ snapshots:
   '@kungal/ui-tokens@2.32.0(tailwindcss@4.3.3)':
     dependencies:
       tailwindcss: 4.3.3
-
-  '@kungal/ui-vue@2.26.2(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))':
-    dependencies:
-      '@floating-ui/vue': 1.1.11(vue@3.5.41(typescript@5.9.3))
-      '@kungal/ui-core': 2.26.2
-      '@vueuse/core': 14.4.0(vue@3.5.41(typescript@5.9.3))
-      '@vueuse/integrations': 14.4.0(focus-trap@8.2.2)(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
-      date-fns: 4.4.0
-      focus-trap: 8.2.2
-      thumbhash: 0.1.1
-      vue: 3.5.41(typescript@5.9.3)
-      vue-advanced-cropper: 2.8.9(vue@3.5.41(typescript@5.9.3))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - async-validator
-      - axios
-      - change-case
-      - drauu
-      - fuse.js
-      - idb-keyval
-      - jwt-decode
-      - nprogress
-      - qrcode
-      - sortablejs
-      - universal-cookie
 
   '@kungal/ui-vue@2.32.0(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))':
     dependencies:
