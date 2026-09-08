@@ -11,9 +11,9 @@
     "clean": "rm -rf .nuxt .output"
   },
   "dependencies": {
-    "@kungal/ui-nuxt": "^2.26.2",
-    "@kungal/ui-tokens": "^2.26.2",
-    "@kungal/ui-vue": "^2.26.2",
+    "@kungal/ui-nuxt": "^2.32.0",
+    "@kungal/ui-tokens": "^2.32.0",
+    "@kungal/ui-vue": "^2.32.0",
     "@nextmoe/edit-ui-catalog": "workspace:*",
     "@nextmoe/edit-ui-core": "workspace:*",
     "@nextmoe/edit-ui-nuxt": "workspace:*",

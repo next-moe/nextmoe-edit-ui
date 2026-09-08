@@ -15,14 +15,14 @@ importers:
   apps/playground:
     dependencies:
       '@kungal/ui-nuxt':
-        specifier: ^2.26.2
-        version: 2.26.2(902804fdfbbf582522a1199c3eb7080a)
+        specifier: ^2.32.0
+        version: 2.32.0(902804fdfbbf582522a1199c3eb7080a)
       '@kungal/ui-tokens':
-        specifier: ^2.26.2
-        version: 2.26.2(tailwindcss@4.3.3)
+        specifier: ^2.32.0
+        version: 2.32.0(tailwindcss@4.3.3)
       '@kungal/ui-vue':
-        specifier: ^2.26.2
-        version: 2.26.2(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
+        specifier: ^2.32.0
+        version: 2.32.0(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
       '@nextmoe/edit-ui-catalog':
         specifier: workspace:*
         version: link:../../packages/catalog
@@ -69,10 +69,10 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^8.0.16
-        version: 8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.20.1)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)
       vitest:
         specifier: ^4.1.7
-        version: 4.1.11(@types/node@22.20.1)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0))
+        version: 4.1.11(@types/node@22.20.1)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0))
 
   packages/core:
     dependencies:
@@ -88,10 +88,10 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^8.0.16
-        version: 8.2.2(@types/node@22.20.1)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)
+        version: 8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)
       vitest:
         specifier: ^4.1.7
-        version: 4.1.11(@types/node@22.20.1)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0))
+        version: 4.1.11(@types/node@22.20.1)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0))
 
   packages/nuxt:
     dependencies:
@@ -984,19 +984,27 @@ packages:
   '@kungal/ui-core@2.26.2':
     resolution: {integrity: sha512-2DiDJVD2WxPmAEOAdGBRKzp0/xAmf6Lj6Qx+WReage2vr6mKm0ESZtFhjcJDJBnLWdKNajtl13c8fOEjjomKvQ==}
 
-  '@kungal/ui-nuxt@2.26.2':
-    resolution: {integrity: sha512-dqivgBCr8taIslxHKEILLrN40ilTuYGIdDDziNjSfUTZO/BRnM2AsyKikgfDl+bKIdBBd1blRsV5cV6DgXAHiA==}
+  '@kungal/ui-core@2.32.0':
+    resolution: {integrity: sha512-6NdDk4NYvQr0IdkkdfcXmKDCHsW/XCO2n5YYA8WlBFZtgUpTq0BmtcWLb+pM0XuUSc6PCABDgWCxtuo5Q2+8xA==}
+
+  '@kungal/ui-nuxt@2.32.0':
+    resolution: {integrity: sha512-D9IkHUWV2QRgP8nBqBnq+/Iooj5yNyaZfPXDuSIBmQPVg/J8OAjbNmTRnCmeNr49Io/rD+ERSpUIYuoH2LD5GQ==}
     peerDependencies:
       nuxt: ^4.0.0
       vue: ^3.5.0
 
-  '@kungal/ui-tokens@2.26.2':
-    resolution: {integrity: sha512-urPNj3ILeybpddOXzydA9I+fpmntiEB3eBXTa5Sl0GevarTQYmspfqQWBfzk3YEjvfauGltEWpiCJFZvSZpxxw==}
+  '@kungal/ui-tokens@2.32.0':
+    resolution: {integrity: sha512-bO9VI9tonXyH97VOkQHHsBRvOEujYeMAE8H9DnsfXBO3URHG+J5gRcuRZ0ChMdMqrroT6tmYP09QKkBTRj2faw==}
     peerDependencies:
       tailwindcss: ^4.0.0
 
   '@kungal/ui-vue@2.26.2':
     resolution: {integrity: sha512-HOJWso0AvM4Gtgr276h4ovwdl7afJRPm16QY5vM5PHMOYEXYjFsCXb8b39iQG8UmIv92RpijKF2rJ1cvy2hsMA==}
+    peerDependencies:
+      vue: ^3.5.0
+
+  '@kungal/ui-vue@2.32.0':
+    resolution: {integrity: sha512-4e+kRX1FDaHSa93sEIRmpoMWdrzPC9OkHKE8sGZEoXwKsa52mTMuwZZ+YwOQBWts0BWmgdNHTK2gHbs3zkwNLw==}
     peerDependencies:
       vue: ^3.5.0
 
@@ -5531,10 +5539,15 @@ snapshots:
       clsx: 2.1.1
       tailwind-merge: 3.6.0
 
-  '@kungal/ui-nuxt@2.26.2(902804fdfbbf582522a1199c3eb7080a)':
+  '@kungal/ui-core@2.32.0':
     dependencies:
-      '@kungal/ui-tokens': 2.26.2(tailwindcss@4.3.3)
-      '@kungal/ui-vue': 2.26.2(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
+      clsx: 2.1.1
+      tailwind-merge: 3.6.0
+
+  '@kungal/ui-nuxt@2.32.0(902804fdfbbf582522a1199c3eb7080a)':
+    dependencies:
+      '@kungal/ui-tokens': 2.32.0(tailwindcss@4.3.3)
+      '@kungal/ui-vue': 2.32.0(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
       '@nuxt/icon': 2.5.0(magic-string@1.2.2)(magicast@0.5.4)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0))(vue@3.5.41(typescript@5.9.3))
       '@nuxt/image': 2.1.0(@types/node@22.20.1)(magic-string@1.2.2)(magicast@0.5.4)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)))(unstorage@1.17.5(db0@0.3.4)(ioredis@5.11.1))
       '@nuxt/kit': 4.5.2(magic-string@1.2.2)(magicast@0.5.4)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)))
@@ -5563,7 +5576,7 @@ snapshots:
       - unstorage
       - vite
 
-  '@kungal/ui-tokens@2.26.2(tailwindcss@4.3.3)':
+  '@kungal/ui-tokens@2.32.0(tailwindcss@4.3.3)':
     dependencies:
       tailwindcss: 4.3.3
 
@@ -5571,6 +5584,31 @@ snapshots:
     dependencies:
       '@floating-ui/vue': 1.1.11(vue@3.5.41(typescript@5.9.3))
       '@kungal/ui-core': 2.26.2
+      '@vueuse/core': 14.4.0(vue@3.5.41(typescript@5.9.3))
+      '@vueuse/integrations': 14.4.0(focus-trap@8.2.2)(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
+      date-fns: 4.4.0
+      focus-trap: 8.2.2
+      thumbhash: 0.1.1
+      vue: 3.5.41(typescript@5.9.3)
+      vue-advanced-cropper: 2.8.9(vue@3.5.41(typescript@5.9.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - async-validator
+      - axios
+      - change-case
+      - drauu
+      - fuse.js
+      - idb-keyval
+      - jwt-decode
+      - nprogress
+      - qrcode
+      - sortablejs
+      - universal-cookie
+
+  '@kungal/ui-vue@2.32.0(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))':
+    dependencies:
+      '@floating-ui/vue': 1.1.11(vue@3.5.41(typescript@5.9.3))
+      '@kungal/ui-core': 2.32.0
       '@vueuse/core': 14.4.0(vue@3.5.41(typescript@5.9.3))
       '@vueuse/integrations': 14.4.0(focus-trap@8.2.2)(fuse.js@7.5.0)(sortablejs@1.15.7)(vue@3.5.41(typescript@5.9.3))
       date-fns: 4.4.0
